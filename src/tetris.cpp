@@ -38,8 +38,8 @@ void decide(int &blockForEnemy, int &finalX, int &finalY, int &finalO)
     // 贪心决策
     // 从下往上以各种姿态找到第一个位置，要求能够直着落下
     Tetris block(&gameBoard, currBlockType, currBotColor);
-    for (int y = 1; y <= MAPHEIGHT; y++)
-        for (int x = 1; x <= MAPWIDTH; x++)
+    for (int x = 1; x <= MAPHEIGHT; x++)
+        for (int y = 1; y <= MAPWIDTH; y++)
             for (int o = 0; o < 4; o++) {
                 if (block.set(x, y, o).isValid() &&
                     gameBoard.checkDirectDropTo(currBotColor, block.blockType, x, y, o)) {
@@ -97,8 +97,8 @@ int main()
 
     output["response"]["block"] = blockForEnemy;
 
-    output["response"]["x"] = finalX;
-    output["response"]["y"] = finalY;
+    output["response"]["x"] = finalY;
+    output["response"]["y"] = finalX;
     output["response"]["o"] = finalO;
 
     cout << writer.write(output);

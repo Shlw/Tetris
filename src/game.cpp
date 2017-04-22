@@ -214,6 +214,13 @@ int GameBoard::play(const Json::Value &input)
     return nextTypeForColor[currBotColor];
 }
 
+bool GameBoard::place(int id, int blockType, int x, int y, int o)
+{
+    typeCountForColor[id][blockType]++;
+    Tetris tr(this, blockType, id);
+    return tr.set(x, y, o).place();
+}
+
 Tetris::Tetris(GameBoard *gb, int t, int color) : gameBoard(gb), blockType(t), shape(GameBoard::blockShape[t]), color(color)
 {}
 

@@ -11,22 +11,22 @@ class GameBoard
 public:
     // 记录地图状态，0为空，1为以前放置，2为刚刚放置，负数为越界
     // （2用于在清行后将最后一步撤销再送给对方）
-    int gridInfo[2][MAPHEIGHT + 2][MAPWIDTH + 2] = { 0 };
+    int gridInfo[2][MAPHEIGHT + 2][MAPWIDTH + 2] = {};
 
     // 代表分别向对方转移的行
-    int trans[2][4][MAPWIDTH + 2] = { 0 };
+    int trans[2][4][MAPWIDTH + 2] = {};
 
     // 转移行数
-    int transCount[2] = { 0 };
+    int transCount[2] = {};
 
     // 运行eliminate后的当前高度
-    int maxHeight[2] = { 0 };
+    int maxHeight[2] = {};
 
     // 总消去行数的分数之和
-    int elimTotal[2] = { 0 };
+    int elimTotal[2] = {};
 
     // 给对应玩家的各类块的数目总计
-    int typeCountForColor[2][7] = { 0 };
+    int typeCountForColor[2][7] = {};
 
 protected:
     // 围一圈护城河
@@ -61,6 +61,8 @@ public:
     bool canPut(int color, int blockType);
 
     int play(const Json::Value &); // 返回BlockType
+
+    bool place(int id, int blockType, int x, int y, int o); // 放置新块，返回是否可以放置。不检查可达性
 };
 
 class Tetris
