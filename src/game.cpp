@@ -26,12 +26,12 @@ void GameBoard::init()
 bool GameBoard::checkDirectDropTo(int color, int blockType, int x, int y, int o)
 {
     auto &def = blockShape[blockType][o];
-    for (; y <= MAPHEIGHT; y++)
+    for (; x <= MAPHEIGHT; x++)
         for (int i = 0; i < 4; i++) {
             int _x = def[i * 2] + x, _y = def[i * 2 + 1] + y;
-            if (_y > MAPHEIGHT)
+            if (_x > MAPHEIGHT)
                 continue;
-            if (_y < 1 || _x < 1 || _x > MAPWIDTH || gridInfo[color][_y][_x])
+            if (_x < 1 || _y < 1 || _y > MAPWIDTH || gridInfo[color][_x][_y])
                 return false;
         }
     return true;
@@ -132,8 +132,8 @@ int GameBoard::transfer()
 bool GameBoard::canPut(int color, int blockType)
 {
     Tetris t(this, blockType, color);
-    for (int y = MAPHEIGHT; y >= 1; y--)
-        for (int x = 1; x <= MAPWIDTH; x++)
+    for (int x = MAPHEIGHT; x >= 1; x--)
+        for (int y = 1; y <= MAPWIDTH; y++)
             for (int o = 0; o < 4; o++) {
                 t.set(x, y, o);
                 if (t.isValid() && checkDirectDropTo(color, blockType, x, y, o))
@@ -176,8 +176,8 @@ int GameBoard::play(const Json::Value &input)
         // 然后模拟最后一步放置块
         auto &myOutput = input["responses"][i - 1];
         blockType = myOutput["block"].asInt();
-        x = myOutput["x"].asInt();
-        y = myOutput["y"].asInt();
+        y = myOutput["x"].asInt();
+        x = myOutput["y"].asInt();
         o = myOutput["o"].asInt();
 
         // 我当时把上一块落到了 x y o！
@@ -192,8 +192,8 @@ int GameBoard::play(const Json::Value &input)
         // 裁判给自己的输入是对方的最后一步
         auto &myInput = input["requests"][i];
         blockType = myInput["block"].asInt();
-        x = myInput["x"].asInt();
-        y = myInput["y"].asInt();
+        y = myInput["x"].asInt();
+        x = myInput["y"].asInt();
         o = myInput["o"].asInt();
 
         // 对方当时把上一块落到了 x y o！
@@ -237,9 +237,9 @@ bool Tetris::isValid(int x, int y, int o)
     for (i = 0; i < 4; i++) {
         tmpX = x + shape[o][2 * i];
         tmpY = y + shape[o][2 * i + 1];
-        if (tmpX < 1 || tmpX > MAPWIDTH ||
-            tmpY < 1 || tmpY > MAPHEIGHT ||
-            gameBoard->gridInfo[color][tmpY][tmpX] != 0)
+        if (tmpX < 1 || tmpY > MAPWIDTH ||
+            tmpY < 1 || tmpX > MAPHEIGHT ||
+            gameBoard->gridInfo[color][tmpX][tmpY] != 0)
             return false;
     }
     return true;
@@ -247,7 +247,7 @@ bool Tetris::isValid(int x, int y, int o)
 
 bool Tetris::onGround()
 {
-    if (isValid() && !isValid(-1, blockY - 1))
+    if (isValid() && !isValid(blockX - 1))
         return true;
     return false;
 }
@@ -261,7 +261,7 @@ bool Tetris::place()
     for (i = 0; i < 4; i++) {
         tmpX = blockX + shape[orientation][2 * i];
         tmpY = blockY + shape[orientation][2 * i + 1];
-        gameBoard->gridInfo[color][tmpY][tmpX] = 2;
+        gameBoard->gridInfo[color][tmpX][tmpY] = 2;
     }
     return true;
 }
