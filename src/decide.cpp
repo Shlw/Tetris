@@ -1,5 +1,7 @@
 #include "decide.h"
 #include <algorithm>
+#include <iostream>
+#define debug(x) std::cerr<<#x<<"="<<x<<std::endl
 
 double naive_place(GameBoard &gameBoard, int this_col, int this_bl_type, std::function<double(Board, const Block&)> Eval, int &finalX, int &finalY, int &finalO)
 {
@@ -9,6 +11,8 @@ double naive_place(GameBoard &gameBoard, int this_col, int this_bl_type, std::fu
     double best_val = -1e9, now_val;
     Block now_bl, best_bl;
     Board myBoard(this_col, gameBoard);
+
+    //debug(loc.size());
     for (i = 0; i < loc.size(); i++)
     {
         now_bl = Block(loc[i]);

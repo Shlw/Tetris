@@ -9,10 +9,12 @@
 #include <cstdlib>
 #include <ctime>
 #include <functional>
+#include <iostream>
 #include "jsoncpp/json.h"
 #include "game.h"
 #include "decide.h"
 using namespace std;
+#define debug(x) cerr<<#x<<"="<<x<<endl
 
 GameBoard gameBoard;
 
@@ -27,8 +29,10 @@ void init(const Json::Value &input)
 
 void decide(int &blockForEnemy, int &finalX, int &finalY, int &finalO)
 {
-    naive_place(gameBoard, gameBoard.currBotColor, gameBoard.currBlockType, evaluate1, finalX, finalY, finalO);
-    naive_jam(gameBoard, evaluate1, blockForEnemy);
+    double val;
+    val = naive_place(gameBoard, gameBoard.currBotColor, gameBoard.currBlockType, evaluate2, finalX, finalY, finalO);
+    debug(val);
+    naive_jam(gameBoard, evaluate2, blockForEnemy);
 }
 
 void readInput(Json::Value &input)
