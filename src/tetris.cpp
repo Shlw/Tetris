@@ -32,6 +32,7 @@ void decide(int &blockForEnemy, int &finalX, int &finalY, int &finalO)
     double val;
     val = naive_place(gameBoard, gameBoard.currBotColor, gameBoard.currBlockType, evaluate2, finalX, finalY, finalO);
     debug(val);
+    naive_place(gameBoard, gameBoard.currBotColor, gameBoard.currBlockType, evaluate2, finalX, finalY, finalO);
     naive_jam(gameBoard, evaluate2, blockForEnemy);
 }
 

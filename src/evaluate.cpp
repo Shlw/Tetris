@@ -54,24 +54,28 @@ double evaluate2(Board a,const Block& block){
         for (int j=1;j<=MAPWIDTH;++j)
             if (!a[i][j]) cntdown[i][j]=1+cntdown[i-1][j];
 
+    /*
     bool visible[MAPHEIGHT+2][MAPWIDTH+2]={};
     for (int i=1;i<=MAPWIDTH;++i) visible[MAPHEIGHT+1][i]=1;
     for (int i=MAPHEIGHT;i>0;--i) 
         for (int j=1;j<=MAPWIDTH;++j)
             visible[i][j]=visible[i+1][j]&&(!a[i][j]);
+    */
 
     int rowtrans=0;
-    for (int i=1;i<=MAPHEIGHT;++i){
+    for (int i=1;i<=MAPHEIGHT;++i)
         for (int j=1;j<=MAPWIDTH+1;++j)     
             if (!!a[i][j] != !!a[i][j-1])
                 ++rowtrans;
-    }
 
     int holenum=0;
-    for (int i=1;i<=MAPHEIGHT;++i)    
+    int row[MAPWIDTH+2]={};
+    for (int i=MAPHEIGHT-1;i>0;--i){
+        for (int j=1;j<=MAPWIDTH;++j) 
+            row[j]=(!a[i][j])&(!!a[i+1][j] | row[j]);
         for (int j=1;j<=MAPWIDTH;++j)
-            if (!a[i][j] && !visible[i][j]) 
-                ++holenum;
+            holenum+=row[j];
+    }
 
     int coltrans=0;
     for (int i=1;i<=MAPHEIGHT;++i)
