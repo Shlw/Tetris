@@ -41,9 +41,19 @@ double evaluate1(Board a,const Block& block){
 
     return -ret;
 }
-/*
+
 double evaluate2(Board a,const Block& block){
-    int rowtrans,coltrans,holenum,wellsum;
+    int cntdown[MAPHEIGHT+2][MAPWIDTH+2]={};
+    for (int i=1;i<=MAPHEIGHT;++i)
+        for (int j=1;j<=MAPWIDTH;++j)
+            if (!a[i][j]) cntdown[i][j]=1+cntdown[i-1][j];
+
+    bool visible[MAPHEIGHT+2][MAPWIDTH+2]={};
+    for (int i=1;i<=MAPWIDTH;++i) visible[MAPHEIGHT+1][i]=1;
+    for (int i=MAPHEIGHT;i>0;--i) 
+        for (int j=1;j<=MAPWIDTH;++j)
+            visible[i][j]=visible[i+1][j]&&(!a[i][j]);
+
     int land=block.x-blockHalfHeight[block.t][block.o]
              +(blockHeight[block.t][block.o]-1)/2;
     
@@ -57,7 +67,22 @@ double evaluate2(Board a,const Block& block){
     }
 
     int holenum=0;
+    for (int i=1;i<=MAPHEIGHT;++i)    
+        for (int j=1;j<=MAPWIDTH;++j)
+            if (!a[i][j] && !visible[i][j]) 
+                ++holenum;
 
+    int coltrans=0;
+    for (int i=1;i<=MAPHEIGHT;++i)
+        for (int j=1;j<=MAPWIDTH;++j)
+            if (!!a[i][j] != !!a[i-1][j])
+                ++coltrans;
+
+    int wellsum=0;
+    for (int i=1;i<=MAPHEIGHT;++i)
+        for (int j=1;j<=MAPWIDTH;++j)
+            if (!a[i][j] && a[i][j-1] && a[i][j+1])
+                wellsum+=cntdown[i][j];
 
 
     return  -4.500158825082766*land
@@ -67,4 +92,3 @@ double evaluate2(Board a,const Block& block){
             -7.899265427351652*holenum
             -3.3855972247263626*wellsum;
 }
-*/

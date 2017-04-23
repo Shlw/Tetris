@@ -1,5 +1,5 @@
 set(CMAKE_CXX_STANDARD 11)
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
-ADD_EXECUTABLE(tetris tetris.cpp jsoncpp.cpp game.cpp util.cpp)
+ADD_EXECUTABLE(tetris tetris.cpp jsoncpp.cpp game.cpp util.cpp evaluate.cpp)
 ADD_EXECUTABLE(logic logic.cpp jsoncpp.cpp game.cpp)
 ADD_EXECUTABLE(replay replay.cpp jsoncpp.cpp game.cpp)
