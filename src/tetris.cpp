@@ -37,7 +37,15 @@ void decide(int &blockForEnemy, int &finalX, int &finalY, int &finalO)
 
     // 贪心决策
     // 从下往上以各种姿态找到第一个位置，要求能够直着落下
-    Tetris block(&gameBoard, currBlockType, currBotColor);
+    vector<Tetris> blocks;
+    gameBoard.getPlaces(currBotColor, currBlockType, blocks);
+    for (auto block : blocks) {
+        finalX = block.blockX;
+        finalY = block.blockY;
+        finalO = block.orientation;
+        break;
+    }
+    /*Tetris block(&gameBoard, currBlockType, currBotColor);
     for (int x = 1; x <= MAPHEIGHT; x++)
         for (int y = 1; y <= MAPWIDTH; y++)
             for (int o = 0; o < 4; o++) {
@@ -50,7 +58,8 @@ void decide(int &blockForEnemy, int &finalX, int &finalY, int &finalO)
                 }
             }
 
-determined:
+determined:*/
+
     // 再看看给对方什么好
 
     int maxCount = 0, minCount = 99;

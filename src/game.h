@@ -2,9 +2,12 @@
 #define GAME_H
 
 #include "jsoncpp/json.h"
+#include <vector>
 
 #define MAPWIDTH 10
 #define MAPHEIGHT 20
+
+class Tetris;
 
 class GameBoard
 {
@@ -63,6 +66,10 @@ public:
     int play(const Json::Value &); // 返回BlockType
 
     bool place(int id, int blockType, int x, int y, int o); // 放置新块，返回是否可以放置。不检查可达性
+
+    void deplace(int id, int blockType, int x, int y, int o); // 取消放置新块
+
+    std::vector<Tetris> &getPlaces(int id, int blockType, std::vector<Tetris> &ans);
 };
 
 class Tetris
@@ -89,6 +96,9 @@ public:
 
     // 将方块放置在场地上
     bool place();
+
+    // 取消放置方块
+    void deplace();
 
     // 检查能否逆时针旋转自己到o
     bool rotation(int o);

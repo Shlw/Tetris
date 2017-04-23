@@ -1,5 +1,7 @@
 #include "game.h"
+#include <cstring>
 #include <algorithm>
+#include <queue>
 using namespace std;
 
 constexpr int GameBoard::elimBonus[4];
@@ -72,7 +74,8 @@ void GameBoard::eliminate(int color)
             }
     }
     maxHeight[color] -= count;
-    elimTotal[color] += elimBonus[count];
+    if (count > 0)
+        elimTotal[color] += elimBonus[count - 1];
 }
 
 int GameBoard::transfer()
@@ -221,6 +224,58 @@ bool GameBoard::place(int id, int blockType, int x, int y, int o)
     return tr.set(x, y, o).place();
 }
 
+void GameBoard::deplace(int id, int blockType, int x, int y, int o)
+{
+    typeCountForColor[id][blockType]--;
+    Tetris tr(this, blockType, id);
+    tr.set(x, y, o).deplace();
+}
+
+vector<Tetris> &GameBoard::getPlaces(int id, int blockType, vector<Tetris> &ans)
+{
+    queue<Tetris> q;
+    static bool vis[MAPHEIGHT + 2][MAPWIDTH + 2][4];
+    memset(vis, 0, sizeof(vis));
+    Tetris tmp(this, blockType, id);
+    for (int y = 1; y <= MAPWIDTH; ++y)
+        if (tmp.set(MAPHEIGHT - 1, y, 0).isValid()) {
+            q.push(tmp);
+            vis[tmp.blockX][tmp.blockY][tmp.orientation] = true;
+        }
+    ans.clear();
+    while (!q.empty()) {
+        auto &fr = q.front();
+        tmp.set(fr.blockX, fr.blockY, fr.orientation);
+        q.pop();
+        if (tmp.onGround())
+            ans.push_back(tmp);
+        ++tmp.blockY;
+        if (!vis[tmp.blockX][tmp.blockY][tmp.orientation] && tmp.isValid()) {
+            q.push(tmp);
+            vis[tmp.blockX][tmp.blockY][tmp.orientation] = true;
+        }
+        --tmp.blockY, --tmp.blockY;
+        if (!vis[tmp.blockX][tmp.blockY][tmp.orientation] && tmp.isValid()) {
+            q.push(tmp);
+            vis[tmp.blockX][tmp.blockY][tmp.orientation] = true;
+        }
+        ++tmp.blockY, --tmp.blockX;
+        if (!vis[tmp.blockX][tmp.blockY][tmp.orientation] && tmp.isValid()) {
+            q.push(tmp);
+            vis[tmp.blockX][tmp.blockY][tmp.orientation] = true;
+        }
+        for (int o = 0; o < 4; ++o)
+            if (!vis[tmp.blockX][tmp.blockY][o]) {
+                tmp.orientation = o;
+                if (tmp.isValid()) {
+                    q.push(tmp);
+                    vis[tmp.blockX][tmp.blockY][tmp.orientation] = true;
+                }
+            }
+    }
+    return ans;
+}
+
 Tetris::Tetris(GameBoard *gb, int t, int color) : gameBoard(gb), blockType(t), shape(GameBoard::blockShape[t]), color(color)
 {}
 
@@ -271,6 +326,16 @@ bool Tetris::place()
         gameBoard->gridInfo[color][tmpX][tmpY] = 2;
     }
     return true;
+}
+
+void Tetris::deplace()
+{
+    int i, tmpX, tmpY;
+    for (i = 0; i < 4; i++) {
+        tmpX = blockX + shape[orientation][2 * i];
+        tmpY = blockY + shape[orientation][2 * i + 1];
+        gameBoard->gridInfo[color][tmpX][tmpY] = 0;
+    }
 }
 
 bool Tetris::rotation(int o)

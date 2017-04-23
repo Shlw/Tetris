@@ -79,12 +79,13 @@ int main(int argc, char *argv[])
             auto &r0_ = r0[r0.size() - 1];
             auto &r1_ = r1[r1.size() - 1];
             printf("%d %d %d %d\n", d["1"]["block"].asInt(), r0_["y"].asInt(), r0_["x"].asInt(), r0_["o"].asInt());
-            assert(gameBoard.place(0, d["1"]["block"].asInt(), r0_["y"].asInt(), r0_["x"].asInt(), r0_["o"].asInt()));
+            gameBoard.place(0, d["1"]["block"].asInt(), r0_["y"].asInt(), r0_["x"].asInt(), r0_["o"].asInt());
             gameBoard.place(1, d["0"]["block"].asInt(), r1_["y"].asInt(), r1_["x"].asInt(), r1_["o"].asInt());
             printInfo();
             gameBoard.eliminate(0);
             gameBoard.eliminate(1);
             gameBoard.transfer();
+            printInfo();
         }
         else if (o["command"] == "finish") {
             int lose = d["result"].asInt();
