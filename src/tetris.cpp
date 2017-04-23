@@ -27,8 +27,8 @@ void init(const Json::Value &input)
 
 void decide(int &blockForEnemy, int &finalX, int &finalY, int &finalO)
 {
-    naive_place(gameBoard, gameBoard.currBotColor, gameBoard.currBlockType, evaluate1, finalX, finalY, finalO);
-    naive_jam(gameBoard, evaluate1, blockForEnemy);
+    naive_place(gameBoard, gameBoard.currBotColor, gameBoard.currBlockType, evaluate2, finalX, finalY, finalO);
+    naive_jam(gameBoard, evaluate2, blockForEnemy);
 }
 
 void readInput(Json::Value &input)
