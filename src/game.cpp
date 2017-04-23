@@ -303,14 +303,13 @@ vector<Tetris> &GameBoard::getPlaces(int id, int blockType, vector<Tetris> &ans)
             q.push(tmp);
             vis[tmp.blockX][tmp.blockY][tmp.orientation] = true;
         }
-        for (int o = 0; o < 4; ++o)
-            if (!vis[tmp.blockX][tmp.blockY][o]) {
-                tmp.orientation = o;
-                if (tmp.isValid()) {
-                    q.push(tmp);
-                    vis[tmp.blockX][tmp.blockY][tmp.orientation] = true;
-                }
-            }
+        ++tmp.blockX;
+        int o2 = (tmp.orientation + 1) % 4;
+        if (tmp.rotation(o2) && !vis[tmp.blockX][tmp.blockY][o2]) {
+            tmp.orientation = o2;
+            q.push(tmp);
+            vis[tmp.blockX][tmp.blockY][tmp.orientation] = true;
+        }
     }
     return ans;
 }

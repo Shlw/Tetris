@@ -1,10 +1,11 @@
+#include "game.h"
+#include "util.h"
+
 #include <cmath>
 #include <algorithm>
 #include <vector>
 #include <string>
 #include <cstring>
-#include "game.h"
-#include "util.h"
 
 using namespace std;
 

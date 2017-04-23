@@ -1,6 +1,6 @@
-// 注意：x的范围是1~MAPWIDTH，y的范围是1~MAPHEIGHT
-// 数组是先行（y）后列（c）
-// 坐标系：原点在左下角
+#include "jsoncpp/json.h"
+#include "game.h"
+#include "decide.h"
 
 #include <iostream>
 #include <string>
@@ -9,9 +9,6 @@
 #include <cstdlib>
 #include <ctime>
 #include <functional>
-#include "jsoncpp/json.h"
-#include "game.h"
-#include "decide.h"
 using namespace std;
 
 GameBoard gameBoard;
