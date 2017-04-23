@@ -26,7 +26,7 @@ double evaluate1(Board a,const Block& block){
 
     for (int i=xmax;i>0;--i){
         int j=1;
-        double tret=0,bonus=sqrt(xmax-i+1);
+        double tret=0,bonus=xmax-i+1;
         while (j<=MAPWIDTH){
             if (a[i][j]) {++j; continue;}
             double cnt=0;
