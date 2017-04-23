@@ -21,7 +21,8 @@ GameBoard gameBoard;
 
 void init(const Json::Value &input)
 {
-    srand(time(NULL));
+    //srand(time(NULL));
+    srand(0);
 
     auto &first = input["requests"][(Json::UInt) 0];
     currBlockType = first["block"].asInt();
