@@ -41,7 +41,7 @@ double evaluate1(Board a,const Block& block){
 
     return -ret;
 }
-
+/*
 double evaluate2(Board a,const Block& block){
     int rowtrans,coltrans,holenum,wellsum;
     int land=block.x-blockHalfHeight[block.t][block.o]
@@ -67,3 +67,4 @@ double evaluate2(Board a,const Block& block){
             -7.899265427351652*holenum
             -3.3855972247263626*wellsum;
 }
+*/
