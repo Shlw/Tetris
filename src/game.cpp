@@ -246,7 +246,16 @@ bool GameBoard::place(int id, int blockType, int x, int y, int o)
         }
     if (!ok)
         return false;
+
     typeCountForColor[id][blockType]++;
+    int mx = 0, mn = 1000;
+    for (int i = 0; i < 7; ++i) {
+        mx = max(mx, typeCountForColor[id][i]);
+        mn = min(mn, typeCountForColor[id][i]);
+    }
+    if (mx - mn > 2)
+        return false;
+
     Tetris tr(this, blockType, id);
     return tr.set(x, y, o).place();
 }
