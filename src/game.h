@@ -61,7 +61,7 @@ public:
 };
 
 // 一次性消去行数对应分数
-extern const int elimBonus[4];
+extern const int elimBonus[5];
 
 extern const int blockShape[7][4][8];
 // 7种形状(长L| 短L| 反z| 正z| T| 直一| 田格)，4种朝向(上左下右)，8:每相邻的两个分别为x，y

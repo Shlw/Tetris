@@ -78,9 +78,9 @@ int main(int argc, char *argv[])
             auto &r1 = d2["1"]["route"];
             auto &r0_ = r0[r0.size() - 1];
             auto &r1_ = r1[r1.size() - 1];
-            printf("%d %d %d %d\n", d["1"]["block"].asInt(), r0_["y"].asInt(), r0_["x"].asInt(), r0_["o"].asInt());
-            gameBoard.place(0, d["1"]["block"].asInt(), r0_["y"].asInt(), r0_["x"].asInt(), r0_["o"].asInt());
-            gameBoard.place(1, d["0"]["block"].asInt(), r1_["y"].asInt(), r1_["x"].asInt(), r1_["o"].asInt());
+            int wa0 = !gameBoard.place(0, d["1"]["block"].asInt(), r0_["y"].asInt(), r0_["x"].asInt(), r0_["o"].asInt());
+            int wa1 = !gameBoard.place(1, d["0"]["block"].asInt(), r1_["y"].asInt(), r1_["x"].asInt(), r1_["o"].asInt());
+            assert(!wa0 && !wa1);
             printInfo();
             gameBoard.eliminate(0);
             gameBoard.eliminate(1);

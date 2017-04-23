@@ -4,7 +4,7 @@
 #include <queue>
 using namespace std;
 
-const int elimBonus[4] = { 1, 3, 5, 7 };
+const int elimBonus[5] = { 0, 1, 3, 5, 7 };
 
 const int blockShape[7][4][8] = {
     { { 0, 0, 0, 1, 0, -1, -1, -1 }, { 0, 0, 1, 0, -1, 0, -1, 1 }, { 0, 0, 0, -1, 0, 1, 1, 1 }, { 0, 0, -1, 0, 1, 0, 1, -1 } },
@@ -91,8 +91,7 @@ void GameBoard::eliminate(int color)
             }
     }
     maxHeight[color] -= count;
-    if (count > 0)
-        elimTotal[color] += elimBonus[count - 1];
+    elimTotal[color] += elimBonus[count];
 }
 
 int GameBoard::transfer()
@@ -236,6 +235,16 @@ int GameBoard::play(const Json::Value &input)
 
 bool GameBoard::place(int id, int blockType, int x, int y, int o)
 {
+    vector<Tetris> pl;
+    getPlaces(id, blockType, pl);
+    bool ok = false;
+    for (auto i : pl)
+        if (i.blockX == x && i.blockY == y && i.orientation == o) {
+            ok = true;
+            break;
+        }
+    if (!ok)
+        return false;
     typeCountForColor[id][blockType]++;
     Tetris tr(this, blockType, id);
     return tr.set(x, y, o).place();
@@ -254,11 +263,14 @@ vector<Tetris> &GameBoard::getPlaces(int id, int blockType, vector<Tetris> &ans)
     static bool vis[MAPHEIGHT + 2][MAPWIDTH + 2][4];
     memset(vis, 0, sizeof(vis));
     Tetris tmp(this, blockType, id);
-    for (int y = 1; y <= MAPWIDTH; ++y)
-        if (tmp.set(MAPHEIGHT - 1, y, 0).isValid()) {
-            q.push(tmp);
-            vis[tmp.blockX][tmp.blockY][tmp.orientation] = true;
-        }
+    for (int o = 0; o < 4; ++o) {
+        int xo = MAPHEIGHT + blockHalfHeight[blockType][o] - blockHeight[blockType][o] + 1;
+        for (int y = 1; y <= MAPWIDTH; ++y)
+            if (tmp.set(xo, y, o).isValid()) {
+                q.push(tmp);
+                vis[tmp.blockX][tmp.blockY][tmp.orientation] = true;
+            }
+    }
     ans.clear();
     while (!q.empty()) {
         auto &fr = q.front();
