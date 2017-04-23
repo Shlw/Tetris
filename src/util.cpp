@@ -4,12 +4,31 @@
 Block::Block(int _x, int _y, int _o, int _t)
     : x(_x), y(_y), o(_o), t(_t) {}
 
+Block::Block(Tetris te)
+{
+    x = te.blockX;
+    y = te.blockY;
+    o = te.orientation;
+    t = te.blockType;
+}
+
 Board::Board()
 {
     for (int i = 0; i < MAPHEIGHT + 2; i++)
         grid[i][0] = grid[i][MAPWIDTH + 1] = -2;
     for (int i = 0; i < MAPWIDTH + 2; i++)
         grid[0][i] = grid[MAPHEIGHT + 1][i] = -2;
+}
+
+Board::Board(int color, const GameBoard &gameBoard)
+{
+    for (int i = 0; i < MAPHEIGHT + 2; i++)
+        grid[i][0] = grid[i][MAPWIDTH + 1] = -2;
+    for (int i = 0; i < MAPWIDTH + 2; i++)
+        grid[0][i] = grid[MAPHEIGHT + 1][i] = -2;
+    for (int i = 1; i <= MAPHEIGHT; i++)
+        for (int j = 1; j <= MAPWIDTH; j++)
+            grid[i][j] = gameBoard.gridInfo[color][i][j];
 }
 
 void Board::place(const Block &block)

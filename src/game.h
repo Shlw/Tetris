@@ -12,6 +12,12 @@ class Tetris;
 class GameBoard
 {
 public:
+    // 我所在队伍的颜色（0为红，1为蓝，仅表示队伍，不分先后）
+    int currBotColor;
+    int enemyColor;
+    int currBlockType;
+    int enemyType;
+
     // 记录地图状态，0为空，1为以前放置，2为刚刚放置，负数为越界
     // （2用于在清行后将最后一步撤销再送给对方）
     int gridInfo[2][MAPHEIGHT + 2][MAPWIDTH + 2] = {};
@@ -51,7 +57,7 @@ public:
     // 颜色方还能否继续游戏
     bool canPut(int color, int blockType);
 
-    int play(const Json::Value &); // 返回BlockType
+    void play(const Json::Value &);
 
     bool place(int id, int blockType, int x, int y, int o); // 放置新块，返回是否可以放置。不检查可达性
 

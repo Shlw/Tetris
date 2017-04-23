@@ -161,7 +161,7 @@ bool GameBoard::canPut(int color, int blockType)
     return false;
 }
 
-int GameBoard::play(const Json::Value &input)
+void GameBoard::play(const Json::Value &input)
 {
     int nextTypeForColor[2];
     int turnID, blockType;
@@ -172,9 +172,9 @@ int GameBoard::play(const Json::Value &input)
     auto &first = input["requests"][(Json::UInt) 0];
 
     blockType = first["block"].asInt();
-    int currBotColor = first["color"].asInt();
+    currBotColor = first["color"].asInt();
 
-    int enemyColor = 1 - currBotColor;
+    enemyColor = 1 - currBotColor;
     nextTypeForColor[0] = blockType;
     nextTypeForColor[1] = blockType;
     typeCountForColor[0][blockType]++;
@@ -230,7 +230,8 @@ int GameBoard::play(const Json::Value &input)
         // 进行转移
         transfer();
     }
-    return nextTypeForColor[currBotColor];
+    currBlockType = nextTypeForColor[currBotColor];
+    enemyType = nextTypeForColor[enemyColor];
 }
 
 bool GameBoard::place(int id, int blockType, int x, int y, int o)
