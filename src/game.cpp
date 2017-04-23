@@ -5,7 +5,8 @@
 using namespace std;
 
 constexpr int GameBoard::elimBonus[4];
-constexpr int GameBoard::blockShape[7][4][8];
+constexpr int Tetris::blockShape[7][4][8];
+constexpr int Tetris::blockHeight[7][4];
 
 GameBoard::GameBoard()
 {
@@ -27,7 +28,7 @@ void GameBoard::init()
 
 bool GameBoard::checkDirectDropTo(int color, int blockType, int x, int y, int o)
 {
-    auto &def = blockShape[blockType][o];
+    auto &def = Tetris::blockShape[blockType][o];
     for (; x <= MAPHEIGHT; x++)
         for (int i = 0; i < 4; i++) {
             int _x = def[i * 2] + x, _y = def[i * 2 + 1] + y;
@@ -276,7 +277,7 @@ vector<Tetris> &GameBoard::getPlaces(int id, int blockType, vector<Tetris> &ans)
     return ans;
 }
 
-Tetris::Tetris(GameBoard *gb, int t, int color) : gameBoard(gb), blockType(t), shape(GameBoard::blockShape[t]), color(color)
+Tetris::Tetris(GameBoard *gb, int t, int color) : gameBoard(gb), blockType(t), shape(blockShape[t]), color(color)
 {}
 
 Tetris &Tetris::set(int x, int y, int o)
