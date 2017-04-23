@@ -43,6 +43,12 @@ double evaluate1(Board a,const Block& block){
 }
 
 double evaluate2(Board a,const Block& block){
+    int land=block.x-blockHalfHeight[block.t][block.o]
+             +(blockHeight[block.t][block.o]-1)/2;
+    
+    a.place(block);
+    int rowelim=a.eliminate();
+
     int cntdown[MAPHEIGHT+2][MAPWIDTH+2]={};
     for (int i=1;i<=MAPHEIGHT;++i)
         for (int j=1;j<=MAPWIDTH;++j)
@@ -53,11 +59,6 @@ double evaluate2(Board a,const Block& block){
     for (int i=MAPHEIGHT;i>0;--i) 
         for (int j=1;j<=MAPWIDTH;++j)
             visible[i][j]=visible[i+1][j]&&(!a[i][j]);
-
-    int land=block.x-blockHalfHeight[block.t][block.o]
-             +(blockHeight[block.t][block.o]-1)/2;
-    
-    int rowelim=a.eliminate();
 
     int rowtrans=0;
     for (int i=1;i<=MAPHEIGHT;++i){
