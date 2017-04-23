@@ -57,3 +57,8 @@ int Board::eliminate()
         memset(grid[MAPHEIGHT - i] + 1, 0, sizeof(int) * MAPWIDTH);
     return count;
 }
+
+int *Board::operator[] (int index)
+{
+    return grid[index];
+}

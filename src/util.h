@@ -21,6 +21,8 @@ public:
     void place(const Block &);
     void deplace(const Block &);
     int eliminate(); // 返回消去的行数
+
+    int *operator[] (int index);
 };
 
 #endif 
