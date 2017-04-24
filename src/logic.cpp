@@ -75,8 +75,8 @@ int main(int argc, char *argv[])
         logger[turnID * 2][0] = o0;
         logger[turnID * 2][1] = o1;
         bool wa0, wa1;
-        wa0 = !gameBoard.place(0, logger[(turnID - 1) * 2][0]["block"].asInt(), o0["y"].asInt(), o0["x"].asInt(), o0["o"].asInt());
-        wa1 = !gameBoard.place(1, logger[(turnID - 1) * 2][1]["block"].asInt(), o1["y"].asInt(), o1["x"].asInt(), o1["o"].asInt());
+        wa0 = !gameBoard.place(0, logger[(turnID - 1) * 2][1]["block"].asInt(), o1["y"].asInt(), o0["x"].asInt(), o0["o"].asInt());
+        wa1 = !gameBoard.place(1, logger[(turnID - 1) * 2][0]["block"].asInt(), o1["y"].asInt(), o1["x"].asInt(), o1["o"].asInt());
         if (wa0) {
             puts("player 0 error");
             winner = 1;
