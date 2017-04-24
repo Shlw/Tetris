@@ -44,11 +44,11 @@ double evaluate1(Board a,const Block& block){
 }
 
 double evaluate2(Board a,const Block& block){
-    int land=block.x-blockHalfHeight[block.t][block.o]
-             +(blockHeight[block.t][block.o]-1)/2;
-    
     a.place(block);
     int rowelim=a.eliminate();
+
+    double land=block.x-rowelim-blockHalfHeight[block.t][block.o]
+             +(blockHeight[block.t][block.o]-1)/2.0-1;
 
     int cntdown[MAPHEIGHT+2][MAPWIDTH+2]={};
     for (int i=1;i<=MAPHEIGHT;++i)

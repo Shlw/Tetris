@@ -386,7 +386,7 @@ bool Tetris::rotation(int o)
 
     int fromO = orientation;
     while (true) {
-        if (!isValid(-1, -1, orientation))
+        if (!isValid(-1, -1, fromO))
             return false;
 
         if (fromO == o)
