@@ -18,9 +18,9 @@ void makeInput(int id, string str)
     Json::Value &req = input["requests"];
     Json::Value &res = input["responses"];
     for (int i = 1; i <= turnID; ++i)
-        req[i - 1] = logger[(i - 1) * 2][id];
+        req[i - 1] = logger[(i - 1) * 2][1 - id];
     for (int i = 1; i < turnID; ++i)
-        res[i - 1] = logger[(i - 1) * 2 + 1][1 - id];
+        res[i - 1] = logger[(i - 1) * 2 + 1][id];
     fin << writer.write(input);
     fin.close();
 }
@@ -75,7 +75,7 @@ int main(int argc, char *argv[])
         logger[turnID * 2][0] = o0;
         logger[turnID * 2][1] = o1;
         bool wa0, wa1;
-        wa0 = !gameBoard.place(0, logger[(turnID - 1) * 2][1]["block"].asInt(), o1["y"].asInt(), o0["x"].asInt(), o0["o"].asInt());
+        wa0 = !gameBoard.place(0, logger[(turnID - 1) * 2][1]["block"].asInt(), o0["y"].asInt(), o0["x"].asInt(), o0["o"].asInt());
         wa1 = !gameBoard.place(1, logger[(turnID - 1) * 2][0]["block"].asInt(), o1["y"].asInt(), o1["x"].asInt(), o1["o"].asInt());
         if (wa0) {
             puts("player 0 error");
