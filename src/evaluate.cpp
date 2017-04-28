@@ -11,38 +11,6 @@ using namespace std;
 
 template<class T> T sqr(T x){return x*x;}
 
-double evaluate1(Board a,const Block& block){
-    bool reachable[MAPHEIGHT+2][MAPWIDTH+2];
-    int reachlength[MAPHEIGHT+2][MAPWIDTH+2]{};
-    int xmax=0;
-    for (int i=MAPHEIGHT;i>0;--i)
-        for (int j=1;j<=MAPWIDTH;++j){
-            if (a[i][j]>0 && !xmax) xmax=i;
-            if (a[i][j]>0 || reachlength[i+1][j]<0) reachlength[i][j]=-1;
-                else reachlength[i][j]=reachlength[i+1][j]+1;
-            reachable[i][j]=reachlength[i][j]>0;
-        }
-
-    double ret=0;
-
-    for (int i=xmax;i>0;--i){
-        int j=1;
-        double tret=0,bonus=xmax-i+1;
-        while (j<=MAPWIDTH){
-            if (a[i][j]) {++j; continue;}
-            double cnt=0;
-            int prej=j;
-            while (!a[i][j]) ++j,++cnt;
-            cnt=sqrt(cnt);
-            for (int k=prej;k<j;++k) if (!reachable[i][k]) cnt*=bonus;
-            tret+=cnt;
-        }
-        ret+=(xmax-i+1)*tret;
-    }
-
-    return -ret;
-}
-
 double evaluate2(Board a,const Block& block){
     a.place(block);
     int rowelim=a.eliminate();
