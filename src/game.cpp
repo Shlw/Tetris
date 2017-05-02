@@ -96,6 +96,7 @@ void GameBoard::eliminate(int color)
 
 int GameBoard::transfer()
 {
+    return -1;
     int color1 = 0, color2 = 1;
     if (transCount[color1] == 0 && transCount[color2] == 0)
         return -1;

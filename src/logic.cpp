@@ -113,6 +113,11 @@ int main(int argc, char *argv[])
             winner = 0;
         if (wa0 || wa1)
             break;
+        if (turnID == 300)
+        {
+            winner = -2;
+            break;
+        }
         ++turnID;
     }
 
