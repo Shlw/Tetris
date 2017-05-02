@@ -18,9 +18,9 @@ void makeInput(int id, string str)
     Json::Value &req = input["requests"];
     Json::Value &res = input["responses"];
     for (int i = 1; i <= turnID; ++i)
-        req[i - 1] = logger[(i - 1) * 2][1 - id];
+        req[i - 1] = logger[i - 1][id];
     for (int i = 1; i < turnID; ++i)
-        res[i - 1] = logger[(i - 1) * 2 + 1][id];
+        res[i - 1] = logger[i][1 - id];
     fin << writer.write(input);
     fin.close();
 }
@@ -46,13 +46,13 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    bool finish = false;
     int winner = -2;
 
-    while (!finish) {
+    while (1) {
         printf("Round %d\n", turnID);
         if (turnID == 1) {
-            srand(time(NULL));
+            //srand(time(NULL));
+            srand(0);
             int first = rand() % 7;
             logger[0][0]["block"] = first;
             logger[0][0]["color"] = 0;
@@ -70,13 +70,15 @@ int main(int argc, char *argv[])
         Json::Value o0, o1;
         o0 = getOutput(so0);
         o1 = getOutput(so1);
-        logger[(turnID - 1) * 2 + 1][0] = o0;
-        logger[(turnID - 1) * 2 + 1][1] = o1;
-        logger[turnID * 2][0] = o0;
-        logger[turnID * 2][1] = o1;
+        logger[turnID][0] = o1;
+        logger[turnID][1] = o0;
         bool wa0, wa1;
-        wa0 = !gameBoard.place(0, logger[(turnID - 1) * 2][1]["block"].asInt(), o0["y"].asInt(), o0["x"].asInt(), o0["o"].asInt());
-        wa1 = !gameBoard.place(1, logger[(turnID - 1) * 2][0]["block"].asInt(), o1["y"].asInt(), o1["x"].asInt(), o1["o"].asInt());
+        wa0 = !gameBoard.place(0, logger[turnID - 1][0]["block"].asInt(), o0["y"].asInt(), o0["x"].asInt(), o0["o"].asInt());
+        ++gameBoard.typeCountForColor[0][logger[turnID - 1][0]["block"].asInt()];
+        wa1 = !gameBoard.place(1, logger[turnID - 1][1]["block"].asInt(), o1["y"].asInt(), o1["x"].asInt(), o1["o"].asInt());
+        ++gameBoard.typeCountForColor[1][logger[turnID - 1][1]["block"].asInt()];
+        wa0 = wa0 || gameBoard.typeCountError(1);
+        wa1 = wa1 || gameBoard.typeCountError(0);
         if (wa0) {
             puts("player 0 error");
             winner = 1;
@@ -93,8 +95,7 @@ int main(int argc, char *argv[])
         gameBoard.eliminate(0);
         gameBoard.eliminate(1);
         int wa = gameBoard.transfer();
-        if (wa != -1)
-        {
+        if (wa != -1) {
             winner = 1 - wa;
             break;
         }
@@ -113,8 +114,7 @@ int main(int argc, char *argv[])
             winner = 0;
         if (wa0 || wa1)
             break;
-        if (turnID == 300)
-        {
+        if (turnID == 300) {
             winner = -2;
             break;
         }
@@ -124,17 +124,17 @@ int main(int argc, char *argv[])
     ofstream fout(argv[3]);
     Json::StyledWriter writer;
     Json::Value output;
-    for (int i = 0; i <= turnID; ++i) {
-        auto &o = output[i]["output"];
+    for (int i = 1; i <= turnID; ++i) {
+        auto &o = output[i - 1]["output"];
         o["command"] = "request";
         auto &d = o["display"];
-        auto &d2 = output[i + 1]["output"]["display"];
-        d["0"]["block"] = logger[i * 2][0]["block"];
-        d["1"]["block"] = logger[i * 2][1]["block"];
+        d["0"]["block"] = logger[i - 1][0]["block"];
+        d["1"]["block"] = logger[i - 1][1]["block"];
         if (i != turnID) {
-            d2["0"]["route"][0] = logger[i * 2 + 1][0];
+            auto &d2 = output[i]["output"]["display"];
+            d2["0"]["route"][0] = logger[i][1];
             d2["0"]["route"][0].removeMember("block");
-            d2["1"]["route"][0] = logger[i * 2 + 1][1];
+            d2["1"]["route"][0] = logger[i][0];
             d2["1"]["route"][0].removeMember("block");
         }
     }

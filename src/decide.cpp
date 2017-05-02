@@ -49,15 +49,3 @@ void naive_jam(GameBoard &gameBoard, std::function<double(Board, const Block&)> 
     }
     blockForEnemy = worst_bl;
 }
-
-void random_jam(GameBoard &gameBoard, std::function<double(Board, const Block&)> Eval, int &blockForEnemy)
-{
-    int min_type = 1e9;
-    for (int i = 0; i < 7; i++)
-        min_type = std::min(gameBoard.typeCountForColor[gameBoard.enemyColor][i], min_type);
-    int lst[7], nlst = 0;
-    for (int i = 0; i < 7; i++)
-        if (gameBoard.typeCountForColor[gameBoard.enemyColor][i] <= min_type + 1)
-            lst[nlst++] = i;
-    blockForEnemy = lst[rand() % nlst];
-}

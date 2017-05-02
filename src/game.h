@@ -64,6 +64,8 @@ public:
     void deplace(int id, int blockType, int x, int y, int o); // 取消放置新块
 
     std::vector<Tetris> &getPlaces(int id, int blockType, std::vector<Tetris> &ans);
+
+    bool typeCountError(int color); // 该玩家方块使用数目是否异常
 };
 
 // 一次性消去行数对应分数

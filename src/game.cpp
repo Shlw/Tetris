@@ -248,14 +248,15 @@ bool GameBoard::place(int id, int blockType, int x, int y, int o)
     if (!ok)
         return false;
 
-    typeCountForColor[id][blockType]++;
-    int mx = 0, mn = 1000;
+    //typeCountForColor[id][blockType]++;
+    /*int mx = 0, mn = 1000;
     for (int i = 0; i < 7; ++i) {
         mx = max(mx, typeCountForColor[id][i]);
         mn = min(mn, typeCountForColor[id][i]);
     }
     if (mx - mn > 2)
         return false;
+    */
 
     Tetris tr(this, blockType, id);
     return tr.set(x, y, o).place();
@@ -313,6 +314,16 @@ vector<Tetris> &GameBoard::getPlaces(int id, int blockType, vector<Tetris> &ans)
         }
     }
     return ans;
+}
+
+bool GameBoard::typeCountError(int color)
+{
+    int mn = 1e7, mx = -1;
+    for (int i = 0; i < 7; ++i) {
+        mn = min(mn, typeCountForColor[color][i]);
+        mx = max(mx, typeCountForColor[color][i]);
+    }
+    return mx - mn > 2;
 }
 
 Tetris::Tetris(GameBoard *gb, int t, int color) : gameBoard(gb), blockType(t), shape(blockShape[t]), color(color)
