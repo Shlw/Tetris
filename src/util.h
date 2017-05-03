@@ -30,5 +30,6 @@ public:
 
 double evaluate1(Board a,const Block& block);
 double evaluate2(Board a,const Block& block);
+double evaluate3(Board a,const Block& block);
 
 #endif 
