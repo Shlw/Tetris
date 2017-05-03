@@ -15,8 +15,7 @@ GameBoard gameBoard;
 
 void init(const Json::Value &input)
 {
-    //srand(time(NULL));
-    srand(0);
+    srand(time(NULL));
 
     auto &first = input["requests"][(Json::UInt)0];
     gameBoard.play(input);

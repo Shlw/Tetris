@@ -51,8 +51,7 @@ int main(int argc, char *argv[])
     while (1) {
         printf("Round %d\n", turnID);
         if (turnID == 1) {
-            //srand(time(NULL));
-            srand(0);
+            srand(time(NULL));
             int first = rand() % 7;
             logger[0][0]["block"] = first;
             logger[0][0]["color"] = 0;
@@ -128,15 +127,13 @@ int main(int argc, char *argv[])
         auto &o = output[i - 1]["output"];
         o["command"] = "request";
         auto &d = o["display"];
-        d["0"]["block"] = logger[i - 1][0]["block"];
-        d["1"]["block"] = logger[i - 1][1]["block"];
-        if (i != turnID) {
-            auto &d2 = output[i]["output"]["display"];
-            d2["0"]["route"][0] = logger[i][1];
-            d2["0"]["route"][0].removeMember("block");
-            d2["1"]["route"][0] = logger[i][0];
-            d2["1"]["route"][0].removeMember("block");
-        }
+        d["0"]["block"] = logger[i - 1][1]["block"];
+        d["1"]["block"] = logger[i - 1][0]["block"];
+        auto &d2 = output[i]["output"]["display"];
+        d2["0"]["route"][0] = logger[i][1];
+        d2["0"]["route"][0].removeMember("block");
+        d2["1"]["route"][0] = logger[i][0];
+        d2["1"]["route"][0].removeMember("block");
     }
     auto &o = output[turnID]["output"];
     o["command"] = "finish";

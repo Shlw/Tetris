@@ -81,6 +81,8 @@ int main(int argc, char *argv[])
             int wa0 = !gameBoard.place(0, d["1"]["block"].asInt(), r0_["y"].asInt(), r0_["x"].asInt(), r0_["o"].asInt());
             int wa1 = !gameBoard.place(1, d["0"]["block"].asInt(), r1_["y"].asInt(), r1_["x"].asInt(), r1_["o"].asInt());
             assert(!wa0 && !wa1);
+            ++gameBoard.typeCountForColor[0][d["1"]["block"].asInt()];
+            ++gameBoard.typeCountForColor[1][d["0"]["block"].asInt()];
             printInfo();
             gameBoard.eliminate(0);
             gameBoard.eliminate(1);
