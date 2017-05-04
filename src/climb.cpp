@@ -14,7 +14,7 @@ int resource = 8;
 mutex runMutex;
 condition_variable runCV;
 
-void run(double p1, double p2, double q1, double q2, double q3, double k1, int *ans)
+void run(double p1, double p2, double q1, double q2, double q3, double k1, int *ans, int num)
 {
     {
         unique_lock<mutex> runLock(runMutex);
@@ -25,10 +25,18 @@ void run(double p1, double p2, double q1, double q2, double q3, double k1, int *
             --resource;
         }
     }
-    char cmd[100];
-    sprintf(cmd, "echo %g %g %g %g %g %g | ./mkdata > out.txt", p1, p2, q1, q2, q3, k1);
+    /*char cmd[100];
+    sprintf(cmd, "echo %g %g %g %g %g %g | ./mkdata > out%d.txt", p1, p2, q1, q2, q3, k1, num);
     system(cmd);
-    FILE *file = fopen("out.txt", "r");
+    FILE *file = fopen(("out" + to_string(num) + ".txt").c_str(), "r");
+    fscanf(file, "%d", ans);
+    fclose(file);*/
+    FILE *file;
+    file = fopen(("in" + to_string(num) + ".txt").c_str(), "w");
+    fprintf(file, "%g %g %g %g %g %g\n", p1, p2, q1, q2, q3, k1);
+    fclose(file);
+    system(("./mkdata < in" + to_string(num) + ".txt > out" + to_string(num) + ".txt").c_str());
+    file = fopen(("out" + to_string(num) + ".txt").c_str(), "r");
     fscanf(file, "%d", ans);
     fclose(file);
     {
@@ -40,12 +48,12 @@ void run(double p1, double p2, double q1, double q2, double q3, double k1, int *
 
 double mean(double p1, double p2, double q1, double q2, double q3, double k1)
 {
-    const int mean_num = 10;
+    const int mean_num = 20;
     int sum = 0;
     vector<thread> vec;
     int num[mean_num];
     for (int i = 0; i < mean_num; ++i) {
-        thread t(run, p1, p2, q1, q2, q3, k1, num + i);
+        thread t(run, p1, p2, q1, q2, q3, k1, num + i, i);
         vec.push_back(move(t));
     }
     for (auto &t : vec)
@@ -60,9 +68,9 @@ void journal(double p1, double p2, double q1, double q2, double q3, double k1, d
 {
     printf("(%g %g %g %g %g %g) = %g\n", p1, p2, q1, q2, q3, k1, mean);
     if (mean > 130) {
-        char cmd[100];
-        sprintf(cmd, "echo \\(%g %g %g %g %g %g\\) = %g >> climb.log", p1, p2, q1, q2, q3, k1, mean);
-        system(cmd);
+        FILE *file = fopen("climb.log", "a");
+        fprintf(file, "(%g %g %g %g %g %g) = %g\n", p1, p2, q1, q2, q3, k1, mean);
+        fclose(file);
     }
 }
 int main()
