@@ -70,10 +70,12 @@ int putables(Board a, int c[MAPHEIGHT + 2][MAPWIDTH + 2])
     }
     return ans;
 }
-double p1, p2, p3, q1, q2, q3, k1;
-double F(double x) {return 20 * q1 / (21 - x) + 0.3 * q2 * x;}
-double G(double x) {return -10 * p1 * exp(-0.1 * p2 * x) + 0.05 * p3 * x;}
-double Eval(Board a, Block bl)
+const int pnum = 6;
+double p[pnum];
+double F(double x) {return 0.3 * p[0] * x + p[1];}
+double G(double x) {return -10 * p[2] * exp(-0.1 * p[3] * x) + 0.05 * p[4] * x;}
+double H(double x) {return 0.1 * pow(1.2, x) * p[5];}
+double Eval(Board a, const Block &bl)
 {
     a.place(bl);
     a.eliminate();
@@ -109,12 +111,16 @@ double Eval(Board a, Block bl)
     for (int i = 1; i <= MAPHEIGHT; ++i)
         for (int j = 1; j <= MAPWIDTH; ++j)
             if (a[i][j] == 0)
-                if (a[i - 1][j] || a[i + 1][j] == 1) { // || a[i][j - 1] == 1 || a[i][j + 1] == 1) {
+                if (a[i - 1][j] || a[i + 1][j] == 1) {
                     if (c[i][j] == 0)
                         bad[i] = 1;
                     if (vis[i][j])
                         cnt[c[i][j]]++;
                 }
+    for (int i = 1; i <= MAPHEIGHT; ++i)
+        for (int j = 1; j <= MAPWIDTH && !bad[i]; ++j)
+            if (a[i][j] == 0 && !vis[i][j])
+                bad[i] = 1;
     for (int i = 1; i <= MAPHEIGHT; ++i)
         if (bad[i])
             ++badlines;
@@ -129,19 +135,36 @@ double Eval(Board a, Block bl)
             break;
         }
     }
+    double aveH = 0;
+    int nvis = 1;
+    for (int i = 1; i < maxheight; ++i)
+        for (int j = 1; j <= MAPWIDTH; ++j)
+            if (a[i][j] == 0) {
+                aveH += maxheight - i;
+                ++nvis;
+            }
+    aveH /= nvis;
+    double sdH = 0;
+    for (int i = 1; i < maxheight; ++i)
+        for (int j = 1; j <= MAPWIDTH; ++j)
+            if (a[i][j] == 0)
+                sdH += (maxheight - i - aveH) * (maxheight - i - aveH);
+    sdH /= nvis;
     double ans = -30 * F(badlines);
     for (int i = 0; i < 100; ++i)
         ans += cnt[i] * G(i);
-    ans -= 30 * tan(maxheight * M_PI / 42) * k1;
-/*
-    static GameBoard gb2;
-    memcpy(gb2.gridInfo[0], a.grid, sizeof(a.grid));
-    printf("bad=%d,cnt={",badlines);
-    for (int i = 0; i <= 40; ++i)
-        printf("[%d]=%d,",i,cnt[i]);
-    printf("}\neval=%g\n", ans);
-    printInfo(gb2);
-*/
+    ans -= 30 * H(maxheight);
+    //printf("sdH=%g,\n", sdH);
+    //ans -= I(sdH);
+    /*
+        static GameBoard gb2;
+        memcpy(gb2.gridInfo[0], a.grid, sizeof(a.grid));
+        printf("bad=%d,cnt={", badlines);
+        for (int i = 0; i <= 40; ++i)
+            printf("[%d]=%d,", i, cnt[i]);
+        printf("}\neval=%g\n", ans);
+        printInfo(gb2);
+    */
     return ans;
 }
 
@@ -169,7 +192,8 @@ double myplace(int this_bl_type, int &finalX, int &finalY, int &finalO)
 
 int main()
 {
-    scanf("%lf %lf %lf %lf %lf %lf", &q1, &q2, &p1, &p2, &p3, &k1);
+    for (int i = 0; i < pnum; ++i)
+        scanf("%lf", p + i);
     gb.currBotColor = 0;
     gb.enemyColor = 1;
     srand(getpid() * time(0));
@@ -193,6 +217,28 @@ int main()
         gb.eliminate(0);
         block = b2;
         ++turn;
+        int maxheight = 0;
+        for (int i = MAPHEIGHT; i >= 1; --i) {
+            int cnt = 0;
+            for (int j = 1; j <= MAPWIDTH; ++j)
+                if (gb.gridInfo[0][i][j])
+                    ++cnt;
+            if (cnt) {
+                maxheight = i;
+                break;
+            }
+        }
+        if (maxheight == MAPHEIGHT)
+            break;
+        if (turn % 8 == 0) {
+            for (int i = maxheight + 1; i > 1; --i)
+                memcpy(gb.gridInfo[0][i], gb.gridInfo[0][i - 1], sizeof(gb.gridInfo[0][0]));
+            for (int i = 1; i <= MAPWIDTH; ++i)
+                gb.gridInfo[0][1][i] = 1;
+            gb.gridInfo[0][1][rand() % MAPWIDTH + 1] = 0;
+            if (rand() % 2)
+                gb.gridInfo[0][1][rand() % MAPWIDTH + 1] = 0;
+        }
     }
     printf("%d\n", turn);
     return 0;

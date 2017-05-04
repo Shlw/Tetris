@@ -1,7 +1,7 @@
 #include "decide.h"
 #include <algorithm>
 
-void random_place(GameBoard &gameBoard, int this_col, int this_bl_type, std::function<double(Board, const Block&)> Eval, int &finalX, int &finalY, int &finalO)
+void random_place(GameBoard &gameBoard, int this_col, int this_bl_type, std::function<double(Board, const Block &)> Eval, int &finalX, int &finalY, int &finalO)
 {
     std::vector<Tetris> loc;
     gameBoard.getPlaces(this_col, this_bl_type, loc);
@@ -35,18 +35,10 @@ double naive_place(GameBoard &gameBoard, int this_col, int this_bl_type, std::fu
         }
     }
     double ret;
-    if (better_bl.x == -1 || rand() % 10 < 8) {
-        finalX = best_bl.x;
-        finalY = best_bl.y;
-        finalO = best_bl.o;
-        ret = best_val;
-    }
-    else {
-        finalX = better_bl.x;
-        finalY = better_bl.y;
-        finalO = better_bl.o;
-        ret = better_val;
-    }
+    finalX = best_bl.x;
+    finalY = best_bl.y;
+    finalO = best_bl.o;
+    ret = best_val;
     return ret;
 }
 
@@ -87,7 +79,7 @@ void naive_jam(GameBoard &gameBoard, std::function<double(Board, const Block &)>
             }
         }
     }
-    if (worse_bl == -1 || rand() % 10 < 6)
+    if (worse_bl == -1 || rand() % 10 < 8)
         blockForEnemy = worst_bl;
     else
         blockForEnemy = worse_bl;
