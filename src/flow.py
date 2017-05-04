@@ -7,8 +7,8 @@ import random
 sess = tf.InteractiveSession()
 
 N = 30
-M = 5
-L = 4
+M = 30
+L = 5
 l=[None]*L
 w=[None]*L
 b=[None]*L
@@ -35,7 +35,7 @@ for i in range(0, L-1):
 lbd = 0.07
 err = tf.sqrt(err0 + lbd * reg)
 '''
-train_step = tf.train.GradientDescentOptimizer(0.002).minimize(err)
+train_step = tf.train.GradientDescentOptimizer(0.003).minimize(err)
 
 tf.global_variables_initializer().run()
 
@@ -53,9 +53,11 @@ def get_data(n):
     ansx = []
     ansy = []
     for i in range(n):
-        #ans = data[random.randint(0, len(data)-1)]
-        ans = data[pdata]
-        pdata += 1
+        if pdata >= len(data):
+            ans = data[random.randint(0, len(data)-1)]
+        else:
+            ans = data[pdata]
+            pdata += 1
         ansx += [ans[:-1]]
         ansy += [ans[-1:]]
     return ansx, ansy
@@ -74,7 +76,8 @@ xts, yts = get_data(len(test_data))
 
 def test(noOut):
     accu = sess.run(acc, feed_dict={x:xts, y_:yts})
-    if noOut and accu < 14:
+    noOut = False
+    if noOut and accu < 16:
         print('acc=%g'%accu)
         print('N=%d,M=%d,L=%d'%(N,M,L))
         for i in range(L):
@@ -83,8 +86,8 @@ def test(noOut):
     elif not noOut:
         print('acc=%g'%accu)
 
-for _ in range(2000):
-    xs, ys = get_data(40)
+for _ in range(1000):
+    xs, ys = get_data(20)
     sess.run(train_step, feed_dict={x:xs, y_:ys})
     if _ % 100:
         test(True)

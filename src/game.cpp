@@ -1,6 +1,8 @@
 #include "game.h"
 #include <cstring>
 #include <algorithm>
+#include <set>
+#include <utility>
 #include <queue>
 using namespace std;
 
@@ -283,7 +285,6 @@ vector<Tetris> &GameBoard::getPlaces(int id, int blockType, vector<Tetris> &ans)
                 vis[tmp.blockX][tmp.blockY][tmp.orientation] = true;
             }
     }
-    ans.clear();
     while (!q.empty()) {
         auto &fr = q.front();
         tmp.set(fr.blockX, fr.blockY, fr.orientation);
@@ -313,6 +314,17 @@ vector<Tetris> &GameBoard::getPlaces(int id, int blockType, vector<Tetris> &ans)
             vis[tmp.blockX][tmp.blockY][tmp.orientation] = true;
         }
     }
+    /*_ans.clear();
+    for (size_t i = 0; i < ans.size(); ++i) {
+        bool hit = false;
+        for (size_t j = i + 1; j < ans.size(); ++j)
+            if (ans[i].same(ans[j])) {
+                hit = true;
+                break;
+            }
+        if (!hit)
+            _ans.push_back(ans[i]);
+    }*/
     return ans;
 }
 
@@ -405,6 +417,26 @@ bool Tetris::rotation(int o)
             break;
 
         fromO = (fromO + 1) % 4;
+    }
+    return true;
+}
+
+bool Tetris::same(const Tetris &x)
+{
+    if (blockType != x.blockType)
+        return false;
+    std::set< pair<int,int> > hash;
+    int i, tmpX, tmpY;
+    for (i = 0; i < 4; i++) {
+        tmpX = blockX + shape[orientation][2 * i];
+        tmpY = blockY + shape[orientation][2 * i + 1];
+        hash.insert(make_pair(tmpX, tmpY));
+    }
+    for (i = 0; i < 4; i++) {
+        tmpX = x.blockX + x.shape[x.orientation][2 * i];
+        tmpY = x.blockY + x.shape[x.orientation][2 * i + 1];
+        if (hash.find(make_pair(tmpX, tmpY)) == hash.end())
+            return false;
     }
     return true;
 }

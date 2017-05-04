@@ -109,6 +109,9 @@ public:
 
     // 检查能否逆时针旋转自己到o
     bool rotation(int o);
+
+    // 检查是否形状和位置一样
+    bool same(const Tetris &x);
 };
 
 #endif
