@@ -103,7 +103,7 @@ double evaluate2(Board a, const Block &block)
                 wellsum += cntdown[i][j];
 
 
-    return  -4.500158825082766 * land
+    return  - 4.500158825082766 * land
             + 3.4181268101392694 * rowelim
             - 3.2178882868487753 * rowtrans
             - 9.348695305445199 * coltrans

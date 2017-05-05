@@ -17,6 +17,7 @@ public:
     int enemyColor;
     int currBlockType;
     int enemyType;
+    int turnID;
 
     // 记录地图状态，0为空，1为以前放置，2为刚刚放置，负数为越界
     // （2用于在清行后将最后一步撤销再送给对方）
