@@ -242,7 +242,7 @@ int main()
         }
         if (maxheight == MAPHEIGHT)
             break;
-        if (turn % 8 == 0) {
+        if (turn % 3 == 0) {
             for (int i = maxheight + 1; i > 1; --i)
                 memcpy(gb.gridInfo[0][i], gb.gridInfo[0][i - 1], sizeof(gb.gridInfo[0][0]));
             for (int i = 1; i <= MAPWIDTH; ++i)
