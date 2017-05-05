@@ -11,7 +11,7 @@
 using namespace std;
 void journal(double *p, int np, double mean);
 
-int resource = 6;
+int resource = 3;
 mutex runMutex;
 condition_variable runCV;
 
@@ -84,17 +84,17 @@ void journal(double *p, int np, double mean)
 int main()
 {
     srand(getpid() * time(0));
-    const int np = 5;
+    const int np = 6;
     double p[np];
     double mean_now = 0;
     while (mean_now < 35) {
         for (int i = 0; i < np; ++i)
-            p[i] = 5.0 * rand() / RAND_MAX;
+            p[i] = 2 + 10.0 * rand() / RAND_MAX;
         mean_now = mean(p, np);
     }
 
     double step = 1.5;
-    const double rate = 0.8;
+    const double rate = 0.9;
     int cnt_step = 0;
     const int cnt_mx = 10;
 

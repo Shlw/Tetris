@@ -70,83 +70,50 @@ int putables(Board a, int c[MAPHEIGHT + 2][MAPWIDTH + 2])
     }
     return ans;
 }
-const int pnum = 5;
+const int pnum = 6;
 double p[pnum];
-double F(double x) {return 10 * p[0] * x;}
-double G(double x) {return -10 * p[1] * exp(-0.1 * p[2] * x) + 0.05 * p[3] * x;}
-double H(double x) {return x >= 4 ? 1 : 1 + 3 * (exp(-0.03 * p[4] * (x - 4)) - 1);}
-double get_deep(Board &a, int h, int maxheight, int l, int r, double rate)
-{
-    int i = l;
-    double ans = 0;
-    while (i <= r) {
-        while (i <= r && a[h][i])
-            ++i;
-        if (i > r)
-            break;
-        int s = i;
-        while (i + 1 <= r && a[h][i + 1] == 0)
-            ++i;
-        int t = i;
-        if (maxheight - h >= 3)
-            ans += (t - s + 1) * rate;
-        ans += get_deep(a, h - 1, maxheight, s, t, rate * H(t - s + 1));
-        ++i;
-    }
-    return ans;
-}
 double Eval(Board a, const Block &bl)
 {
     a.place(bl);
-    a.eliminate();
+    int rowelim = a.eliminate();
 
-    queue< pair<int, int> > q;
-    static bool vis[MAPHEIGHT + 2][MAPWIDTH + 2];
-    memset(vis, 0, sizeof(vis));
-    for (int i = 1; i <= MAPWIDTH; ++i)
-        if (a[MAPHEIGHT][i] == 0) {
-            q.push(make_pair(MAPHEIGHT, i));
-            vis[MAPHEIGHT][i] = true;
-        }
-    int lowest = MAPHEIGHT + 1;
-    while (!q.empty()) {
-        auto fr = q.front();
-        q.pop();
-        lowest = min(lowest, fr.first);
-        for (int i = 0; i < 4; ++i) {
-            static const int dir[4][2] = {{1, 0}, {0, 1}, {-1, 0}, {0, -1}};
-            pair<int, int> tmp(fr.first + dir[i][0], fr.second + dir[i][1]);
-            if (!vis[tmp.first][tmp.second] && a[tmp.first][tmp.second] == 0) {
-                vis[tmp.first][tmp.second] = true;
-                q.push(tmp);
-            }
-        }
-    }
-    int bad[MAPHEIGHT + 2] = {};
-    int cnt[100] = {};
-    int badlines = 0;
-    static int c[MAPHEIGHT + 2][MAPWIDTH + 2];
-    memset(c, 0, sizeof(c));
-    putables(a, c);
-    int sum_cnt = 0;
+    //double land = block.x - rowelim - blockHalfHeight[block.t][block.o]
+    //              + (blockHeight[block.t][block.o] - 1) / 2.0 - 1;
+
+    int cntdown[MAPHEIGHT + 2][MAPWIDTH + 2] = {};
     for (int i = 1; i <= MAPHEIGHT; ++i)
         for (int j = 1; j <= MAPWIDTH; ++j)
-            if (a[i][j] == 0)
-                if (a[i - 1][j] || a[i + 1][j] == 1) {
-                    if (c[i][j] == 0)
-                        bad[i] = 1;
-                    if (vis[i][j]) {
-                        cnt[c[i][j]]++;
-                        ++sum_cnt;
-                    }
-                }
+            if (!a[i][j])
+                cntdown[i][j] = 1 + cntdown[i - 1][j];
+
+    int rowtrans = 0;
     for (int i = 1; i <= MAPHEIGHT; ++i)
-        for (int j = 1; j <= MAPWIDTH && !bad[i]; ++j)
-            if (a[i][j] == 0 && !vis[i][j])
-                bad[i] = 1;
+        for (int j = 1; j <= MAPWIDTH + 1; ++j)
+            if (!!a[i][j] != !!a[i][j - 1])
+                ++rowtrans;
+
+    int holenum = 0;
+    int row[MAPWIDTH + 2] = {};
+    for (int i = MAPHEIGHT - 1; i > 0; --i) {
+        for (int j = 1; j <= MAPWIDTH; ++j)
+            row[j] = (!a[i][j]) & (!!a[i + 1][j] | row[j]);
+        for (int j = 1; j <= MAPWIDTH; ++j)
+            holenum += row[j];
+    }
+
+    int coltrans = 0;
     for (int i = 1; i <= MAPHEIGHT; ++i)
-        if (bad[i])
-            ++badlines;
+        for (int j = 1; j <= MAPWIDTH; ++j)
+            if (!!a[i][j] != !!a[i - 1][j])
+                ++coltrans;
+
+    int wellsum = 0;
+    for (int i = 1; i <= MAPHEIGHT; ++i)
+        for (int j = 1; j <= MAPWIDTH; ++j)
+            if (!a[i][j] && a[i][j - 1] && a[i][j + 1])
+                wellsum += cntdown[i][j];
+
+
     int maxheight = 0;
     for (int i = MAPHEIGHT; i >= 1; --i) {
         int cnt = 0;
@@ -158,25 +125,13 @@ double Eval(Board a, const Block &bl)
             break;
         }
     }
-    double deep = get_deep(a, maxheight, maxheight, 1, MAPWIDTH, 1);
 
-    double ans1 = -F(badlines);
-    double ans2 = 0;
-    for (int i = 0; i < 100; ++i)
-        ans2 += cnt[i] * G(i) * 5 / sum_cnt;
-    double ans3 = -pow(deep / 10, 2);
-    double ans = ans1 + ans2 + ans3;
-/*
-    static GameBoard gb2;
-    memcpy(gb2.gridInfo[0], a.grid, sizeof(a.grid));
-    printf("F(bad=%d)=%g\n", badlines, ans1);
-    printf("G(cnt={");
-    for (int i = 0; i <= 40; ++i)
-        printf("[%d]=%d,", i, cnt[i]);
-    printf("})=%g\nH(deep=%g)=%g\neval=%g\n", ans2, deep, ans3, ans);
-    printInfo(gb2);
-*/
-    return ans;
+    return  -p[0] * maxheight
+            +p[1] * rowelim
+            -p[2] * rowtrans
+            -p[3] * coltrans
+            -p[4] * holenum
+            -p[5] * wellsum;
 }
 
 double myplace(int this_bl_type, int &finalX, int &finalY, int &finalO)
