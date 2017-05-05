@@ -421,6 +421,30 @@ vector<int> Jam_Turn(int dep, GameBoard &gameBoard, int pl_col, vector<double> &
 }
 
 
+double naive_place2(GameBoard &gameBoard, int this_col, int this_bl_type, std::function<double(Board, const Block&)> Eval, int &finalX, int &finalY, int &finalO)
+{
+    std::vector<Tetris> loc;
+    gameBoard.getPlaces(this_col, this_bl_type, loc);
+    int i;
+    double best_val = -1e9, now_val;
+    Block now_bl, best_bl;
+    Board myBoard(this_col, gameBoard);
+    for (i = 0; i < loc.size(); i++)
+    {
+        now_bl = Block(loc[i]);
+        now_val = Eval(myBoard, now_bl);
+        if(now_val > best_val)
+        {
+            best_val = now_val;
+            best_bl = now_bl;
+        }
+    }
+    finalX = best_bl.x;
+    finalY = best_bl.y;
+    finalO = best_bl.o;
+    return best_val;
+}
+
 /*
 void naive_jam(GameBoard &gameBoard, std::function<double(Board, const Block&)> Eval, int &blockForEnemy)
 {
