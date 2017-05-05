@@ -70,7 +70,7 @@ int putables(Board a, int c[MAPHEIGHT + 2][MAPWIDTH + 2])
     }
     return ans;
 }
-const int pnum = 6;
+const int pnum = 5;
 double p[pnum];
 double F(double x) {return 0.3 * p[0] * x + p[1];}
 double G(double x) {return -10 * p[2] * exp(-0.1 * p[3] * x) + 0.05 * p[4] * x;}
@@ -168,6 +168,74 @@ double Eval(Board a, const Block &bl)
     return ans;
 }
 
+double EV2(Board a, const Block &block)
+{
+    a.place(block);
+    int rowelim = a.eliminate();
+
+    double land = block.x - rowelim - blockHalfHeight[block.t][block.o]
+                  + (blockHeight[block.t][block.o] - 1) / 2.0 - 1;
+
+    int cntdown[MAPHEIGHT + 2][MAPWIDTH + 2] = {};
+    for (int i = 1; i <= MAPHEIGHT; ++i)
+        for (int j = 1; j <= MAPWIDTH; ++j)
+            if (!a[i][j])
+                cntdown[i][j] = 1 + cntdown[i - 1][j];
+
+    /*
+    bool visible[MAPHEIGHT+2][MAPWIDTH+2]={};
+    for (int i=1;i<=MAPWIDTH;++i) visible[MAPHEIGHT+1][i]=1;
+    for (int i=MAPHEIGHT;i>0;--i)
+        for (int j=1;j<=MAPWIDTH;++j)
+            visible[i][j]=visible[i+1][j]&&(!a[i][j]);
+    */
+
+    int rowtrans = 0;
+    for (int i = 1; i <= MAPHEIGHT; ++i)
+        for (int j = 1; j <= MAPWIDTH + 1; ++j)
+            if (!!a[i][j] != !!a[i][j - 1])
+                ++rowtrans;
+
+    int holenum = 0;
+    int row[MAPWIDTH + 2] = {};
+    for (int i = MAPHEIGHT - 1; i > 0; --i) {
+        for (int j = 1; j <= MAPWIDTH; ++j)
+            row[j] = (!a[i][j]) & (!!a[i + 1][j] | row[j]);
+        for (int j = 1; j <= MAPWIDTH; ++j)
+            holenum += row[j];
+    }
+
+    int coltrans = 0;
+    for (int i = 1; i <= MAPHEIGHT; ++i)
+        for (int j = 1; j <= MAPWIDTH; ++j)
+            if (!!a[i][j] != !!a[i - 1][j])
+                ++coltrans;
+
+    int wellsum = 0;
+    for (int i = 1; i <= MAPHEIGHT; ++i)
+        for (int j = 1; j <= MAPWIDTH; ++j)
+            if (!a[i][j] && a[i][j - 1] && a[i][j + 1])
+                wellsum += cntdown[i][j];
+
+
+    int maxheight = 0;
+    for (int i = MAPHEIGHT; i >= 1; --i) {
+        int cnt = 0;
+        for (int j = 1; j <= MAPWIDTH; ++j)
+            if (a[i][j])
+                ++cnt;
+        if (cnt) {
+            maxheight = i;
+            break;
+        }
+    }
+
+    return  p[0] * maxheight
+            +p[1] * rowtrans
+            +p[2] * coltrans
+            +p[3] * holenum
+            +p[4] * wellsum;
+}
 double myplace(int this_bl_type, int &finalX, int &finalY, int &finalO)
 {
     std::vector<Tetris> loc;
@@ -178,7 +246,7 @@ double myplace(int this_bl_type, int &finalX, int &finalY, int &finalO)
     Board myBoard(0, gb);
     for (i = 0; i < loc.size(); i++) {
         now_bl = Block(loc[i]);
-        now_val = Eval(myBoard, now_bl);
+        now_val = EV2(myBoard, now_bl);
         if (now_val > best_val) {
             best_val = now_val;
             best_bl = now_bl;

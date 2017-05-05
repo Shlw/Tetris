@@ -72,7 +72,7 @@ void journal(double *p, int np, double mean)
     for (int i = 0; i < np; ++i)
         printf("%g ", p[i]);
     printf(") = %g\n", mean);
-    if (mean > 55) {
+    if (mean > 60) {
         FILE *file = fopen("climb.log", "a");
         fprintf(file, "(");
         for (int i = 0; i < np; ++i)
@@ -84,22 +84,22 @@ void journal(double *p, int np, double mean)
 int main()
 {
     srand(getpid() * time(0));
-    const int np = 6;
+    const int np = 5;
     double p[np];
     double mean_now = 0;
-    while (mean_now < 40) {
+    while (mean_now < 50) {
         for (int i = 0; i < np; ++i)
-            p[i] = 5.0 * rand() / RAND_MAX;
+            p[i] = 10.0 * rand() / RAND_MAX - 5;
         mean_now = mean(p, np);
     }
 
-    double step = 0.5;
+    double step = 1;
     const double rate = 0.8;
     int cnt_step = 0;
     const int cnt_mx = 10;
 
-    while (step > 0.01) {
-        const int tries = 25;
+    while (step > 0.05) {
+        const int tries = 30;
         double mean_next = 0;
         //journal(mean_now);
         double nextp[np];
