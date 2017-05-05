@@ -3,9 +3,13 @@
 #include <iostream>
 #include <cstring>
 #include <ctime>
+#include <set>
 #define DEPTH_LIM 3
+#define MAX_SEARCH 40
 #define debug(x) std::cerr << #x << "=" << x << std::endl
+#define MP(x,y) make_pair(x,y)
 using namespace std;
+typedef pair<double, int> pii;
 #define N 55
 #define M 55
 #define K 105
@@ -296,6 +300,7 @@ double Place_Turn(int dep, GameBoard& gameBoard, int pl_col, int this_bl_type, i
     int i, j, n, m;
     vector<vector<double> > A(loc.size());
     vector<int> index;
+    set<pii> s;
     GameBoard nowBoard;
 
     for (i = 0; i < loc.size(); i++)
@@ -308,13 +313,19 @@ double Place_Turn(int dep, GameBoard& gameBoard, int pl_col, int this_bl_type, i
         Board myBoard(pl_col, gameBoard);
         Block now_bl = Block(loc[i]);
         double now_val = Eval(myBoard, now_bl);
+        s.insert(make_pair(-now_val, i));
+    }
         //debug(now_val);
+    set<pii>::iterator it=s.begin();
+    for (i = 0; i < min((int)loc.size(), MAX_SEARCH); i++, it++)    
+    {
+        int ind = (*it).second;
         nowBoard = gameBoard;
-        nowBoard.place(pl_col, this_bl_type, loc[i].blockX, loc[i].blockY, loc[i].orientation);
+        nowBoard.place(pl_col, this_bl_type, loc[ind].blockX, loc[ind].blockY, loc[ind].orientation);
         nowBoard.eliminate(pl_col);
         index = Jam_Turn(dep + 1, nowBoard, pl_col, A[i]);
     }
-    n = loc.size();
+    n = min((int)loc.size(), MAX_SEARCH);
     m = A[0].size();
 
     //debug(n);
@@ -374,6 +385,21 @@ double Place_Turn(int dep, GameBoard& gameBoard, int pl_col, int this_bl_type, i
         else p2[i] = 0;
         //cerr << p2[i] << " ";
     }
+    //验算一下对偶的答案是否一样
+    /*
+    double check_rel = -1e9;
+    for (i = 1; i <= n; i++)
+    {
+        double check_sum = 0;
+        for (j = 1; j <= m; j++)
+        {
+            check_sum += A[i-1][j-1]*p2[j];
+        }
+        check_rel = max(check_rel, check_sum);
+    }
+    debug(as.rel);
+    debug(check_rel);
+    */
     //cerr << endl;
 
     sum = 0;
@@ -386,9 +412,11 @@ double Place_Turn(int dep, GameBoard& gameBoard, int pl_col, int this_bl_type, i
             break;
         }
         else sum += p1[i];
-    finalX = loc[ch1].blockX;
-    finalY = loc[ch1].blockY;
-    finalO = loc[ch1].orientation;
+    for (it = s.begin(), i = 0; i < ch1; i++, it++);
+    int ind = (*it).second;
+    finalX = loc[ind].blockX;
+    finalY = loc[ind].blockY;
+    finalO = loc[ind].orientation;
     //debug(ch1);
 
     sum = 0;
