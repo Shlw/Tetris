@@ -72,7 +72,7 @@ void journal(double *p, int np, double mean)
     for (int i = 0; i < np; ++i)
         printf("%g ", p[i]);
     printf(") = %g\n", mean);
-    if (mean >= 45) {
+    if (mean >= 58) {
         FILE *file = fopen("climb.log", "a");
         fprintf(file, "(");
         for (int i = 0; i < np; ++i)
@@ -87,7 +87,7 @@ int main()
     const int np = 6;
     double p[np];
     double mean_now = 0;
-    while (mean_now < 35) {
+    while (mean_now < 50) {
         for (int i = 0; i < np; ++i)
             p[i] = 2 + 10.0 * rand() / RAND_MAX;
         mean_now = mean(p, np);

@@ -77,8 +77,8 @@ double Eval(Board a, const Block &bl)
     a.place(bl);
     int rowelim = a.eliminate();
 
-    //double land = block.x - rowelim - blockHalfHeight[block.t][block.o]
-    //              + (blockHeight[block.t][block.o] - 1) / 2.0 - 1;
+    double land = bl.x - rowelim - blockHalfHeight[bl.t][bl.o]
+                  + (blockHeight[bl.t][bl.o] - 1) / 2.0 - 1;
 
     int cntdown[MAPHEIGHT + 2][MAPWIDTH + 2] = {};
     for (int i = 1; i <= MAPHEIGHT; ++i)
@@ -164,7 +164,7 @@ int main()
     gb.enemyColor = 1;
     srand(getpid() * time(0));
     //srand(0);
-    turn = 1;
+    turn = 0;
     int block = 4;
     //int block = rand() % 7;
     while (gb.canPut(0, block)) {
@@ -197,7 +197,7 @@ int main()
         }
         if (maxheight == MAPHEIGHT)
             break;
-        if (turn % 3 == 0) {
+        if (turn % 5 == 0) {
             for (int i = maxheight + 1; i > 1; --i)
                 memcpy(gb.gridInfo[0][i], gb.gridInfo[0][i - 1], sizeof(gb.gridInfo[0][0]));
             for (int i = 1; i <= MAPWIDTH; ++i)
