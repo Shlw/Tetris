@@ -102,9 +102,20 @@ double evaluate2(Board a, const Block &block)
             if (!a[i][j] && a[i][j - 1] && a[i][j + 1])
                 wellsum += cntdown[i][j];
 
+    int maxheight = 0;
+    for (int i = MAPHEIGHT; i >= 1; --i) {
+        int cnt = 0;
+        for (int j = 1; j <= MAPWIDTH; ++j)
+            if (a[i][j])
+                ++cnt;
+        if (cnt) {
+            maxheight = i;
+            break;
+        }
+    }
 
-    return  -4.500158825082766 * land
-            + 3.4181268101392694 * rowelim
+    return  -4.500158825082766 * maxheight
+            //+ 3.4181268101392694 * rowelim
             - 3.2178882868487753 * rowtrans
             - 9.348695305445199 * coltrans
             - 7.899265427351652 * holenum
