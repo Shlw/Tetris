@@ -70,27 +70,30 @@ int putables(Board a, int c[MAPHEIGHT + 2][MAPWIDTH + 2])
     }
     return ans;
 }
-const int pnum = 6;
+const int pnum = 5;
 double p[pnum];
-double F(double x) {return p[0] * x;}
+double F(double x) {return 10 * p[0] * x;}
 double G(double x) {return -10 * p[1] * exp(-0.1 * p[2] * x) + 0.05 * p[3] * x;}
-double H(double x) {return x < 2.5 ? 0 : p[4] * exp(0.03 * p[5] * x);}
-int get_deep(Board &a, int maxheight, int lowest)
+double H(double x) {return x >= 4 ? 1 : 1 + 3 * (exp(-0.03 * p[4] * (x - 4)) - 1);}
+double get_deep(Board &a, int h, int maxheight, int l, int r, double rate)
 {
-    int h = maxheight;
-    while (h >= lowest) {
-        int sp[MAPWIDTH], nsp = 0;
-        for (int i = 1; i <= MAPWIDTH; ++i)
-            if (a[h][i])
-                sp[nsp++] = i;
-        int l = 0;
-        while (l < nsp && sp[l] == l + 1)
-            ++l;
-        if (l != nsp && sp[l] != MAPWIDTH - nsp + l + 1)
+    int i = l;
+    double ans = 0;
+    while (i <= r) {
+        while (i <= r && a[h][i])
+            ++i;
+        if (i > r)
             break;
-        --h;
+        int s = i;
+        while (i + 1 <= r && a[h][i + 1] == 0)
+            ++i;
+        int t = i;
+        if (maxheight - h >= 3)
+            ans += (t - s + 1) * rate;
+        ans += get_deep(a, h - 1, maxheight, s, t, rate * H(t - s + 1));
+        ++i;
     }
-    return h - lowest + 1;
+    return ans;
 }
 double Eval(Board a, const Block &bl)
 {
@@ -155,21 +158,24 @@ double Eval(Board a, const Block &bl)
             break;
         }
     }
-    int deep = get_deep(a, maxheight, lowest);
+    double deep = get_deep(a, maxheight, maxheight, 1, MAPWIDTH, 1);
 
-    double ans = -30 * F(badlines);
+    double ans1 = -F(badlines);
+    double ans2 = 0;
     for (int i = 0; i < 100; ++i)
-        ans += cnt[i] * G(i) * 5 / sum_cnt;
-    ans += H(deep);
-
+        ans2 += cnt[i] * G(i) * 5 / sum_cnt;
+    double ans3 = -pow(deep / 10, 2);
+    double ans = ans1 + ans2 + ans3;
+/*
     static GameBoard gb2;
     memcpy(gb2.gridInfo[0], a.grid, sizeof(a.grid));
-    printf("bad=%d,cnt={", badlines);
+    printf("F(bad=%d)=%g\n", badlines, ans1);
+    printf("G(cnt={");
     for (int i = 0; i <= 40; ++i)
         printf("[%d]=%d,", i, cnt[i]);
-    printf("},deep=%d\neval=%g\n", deep, ans);
+    printf("})=%g\nH(deep=%g)=%g\neval=%g\n", ans2, deep, ans3, ans);
     printInfo(gb2);
-
+*/
     return ans;
 }
 

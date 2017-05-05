@@ -79,7 +79,7 @@ void naive_jam(GameBoard &gameBoard, std::function<double(Board, const Block &)>
             }
         }
     }
-    if (worse_bl == -1 || rand() % 10 < 8)
+    if (worse_bl == -1 || rand() % 10 < 7)
         blockForEnemy = worst_bl;
     else
         blockForEnemy = worse_bl;

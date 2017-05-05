@@ -84,16 +84,16 @@ void journal(double *p, int np, double mean)
 int main()
 {
     srand(getpid() * time(0));
-    const int np = 6;
+    const int np = 5;
     double p[np];
     double mean_now = 0;
-    while (mean_now < 45) {
+    while (mean_now < 50) {
         for (int i = 0; i < np; ++i)
-            p[i] = 10.0 * rand() / RAND_MAX - 5;
+            p[i] = 5.0 * rand() / RAND_MAX;
         mean_now = mean(p, np);
     }
 
-    double step = 1;
+    double step = 1.5;
     const double rate = 0.8;
     int cnt_step = 0;
     const int cnt_mx = 10;
