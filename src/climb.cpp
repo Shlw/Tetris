@@ -84,10 +84,10 @@ void journal(double *p, int np, double mean)
 int main()
 {
     srand(getpid() * time(0));
-    const int np = 5;
+    const int np = 6;
     double p[np];
     double mean_now = 0;
-    while (mean_now < 50) {
+    while (mean_now < 45) {
         for (int i = 0; i < np; ++i)
             p[i] = 10.0 * rand() / RAND_MAX - 5;
         mean_now = mean(p, np);
