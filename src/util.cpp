@@ -34,7 +34,7 @@ Board::Board(int color, const GameBoard &gameBoard){
             }
 }
 
-void Board::place(const Block &block){
+int Board::place(const Block &block){
     int i, tmpX, tmpY;
     auto shape = blockShape[block.t][block.o];
     for (i = 0; i < 4; ++i) {
@@ -43,6 +43,14 @@ void Board::place(const Block &block){
         rows[tmpX] |= 1 << tmpY;
         cols[tmpY] |= 1 << tmpX;
     }
+    int basenum =0;
+    for (i = 0; i < 4; ++i) {
+        tmpX = block.x + shape[2 * i];
+        tmpY = block.y + shape[2 * i + 1];
+        if (rows[tmpX-1] & (1<<tmpY))
+            ++basenum;
+    }
+    return basenum;
 }
 
 void Board::deplace(const Block &block){

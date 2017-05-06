@@ -5,7 +5,8 @@
 #include <ctime>
 #include <set>
 //#define DEBUG_DECIDE
-#define DEPTH_LIM 5
+#define DEPTH_LIM_1 5
+#define DEPTH_LIM_2 3
 #define MAX_SEARCH 10
 #define debug(x) std::cerr << #x << "=" << x << std::endl
 #define MP(x,y) make_pair(x,y)
@@ -311,7 +312,7 @@ double naive_place(GameBoard &gameBoard, int this_col, int this_bl_type)
 
 double Place_Turn(int dep, GameBoard& gameBoard, int pl_col, int this_bl_type, int &finalX = nouse, int &finalY = nouse, int &finalO = nouse, int &blockFE = nouse) //floc 表示最终选的块的位置,blockFE表示给敌人的块
 {
-    if (dep == DEPTH_LIM) //最后一层直接贪
+    if (dep == (gameBoard.turnID < 10 ? DEPTH_LIM_2 : DEPTH_LIM_1)) //最后一层直接贪
         return naive_place(gameBoard, pl_col, this_bl_type);
     //debug(dep);
     std::vector<Tetris> loc;

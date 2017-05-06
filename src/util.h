@@ -26,7 +26,7 @@ public:
     Board();
     Board(int color, const GameBoard &gameBoard);
     void setFrame();
-    void place(const Block &);
+    int place(const Block &);
     void deplace(const Block &);
     std::pair<int,int> eliminate(const Block *block = NULL); // 返回消去的行数，块数
 

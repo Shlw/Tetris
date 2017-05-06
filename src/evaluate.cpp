@@ -85,10 +85,12 @@ double evaluate2(Board a, const Block &block, double &inh)
 */
 double evaluate2_sweet(Board brd, const Block &block, double &inh)
 {
-    brd.place(block);
+    int basenum = brd.place(block);
     pair<int, int> elim = brd.eliminate(&block);
 
     double sweet = 0;
+    if (basenum == 4)
+        sweet += 10;
     if (elim.second == 3)
         sweet += 50;
     if (elim.second == 4)
@@ -143,8 +145,19 @@ double evaluate2_sweet(Board brd, const Block &block, double &inh)
         }
     }
 */
+const double p[6]={5.00016,1.11813,6.71788,12.3487,11.3993,8.2856};
+    inh = - p[0] * land
+          + p[1] * elim.first
+          + sweet;
 
-    inh = - 4.500158825082766 * land
+    return  - p[0] * land
+            + p[1] * elim.first
+            - p[2] * rowtrans
+            - p[3] * coltrans
+            - p[4] * holenum
+            - p[5] * wellsum
+            + sweet;
+    /*inh = - 4.500158825082766 * land
           + 3.4181268101392694 * elim.first
           + sweet;
 
@@ -154,5 +167,5 @@ double evaluate2_sweet(Board brd, const Block &block, double &inh)
             - 9.348695305445199 * coltrans
             - 7.899265427351652 * holenum
             - 3.3855972247263626 * wellsum
-            + sweet;
+            + sweet;*/
 }

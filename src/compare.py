@@ -7,7 +7,7 @@ if len(sys.argv) != 3:
 p0, p1 = sys.argv[1], sys.argv[2]
 cnt0 = 0
 cnt1 = 0
-N = 20
+N = 100
 for i in range(N):
     os.system("./logic %s %s cmplog.txt > cmp.txt" % (p0, p1))
     with open("cmp.txt", "r") as f:
