@@ -102,8 +102,10 @@ double evaluate2_sweet(Board brd, const Block &block, double &inh)
     int rowtrans = 0;
     int coltrans = 0;
     int wellsum = 0;
+    int* cur = a + 2 + MAPWIDTH;
      
-    for (int i = 1; i <= MAPHEIGHT; ++i)
+    for (int i = 1; i <= MAPHEIGHT; ++i){
+        ++cur;
         for (int j = 1; j <= MAPWIDTH; ++j){
             if (!a[i][j])
                 cntdown[i][j] = 1 + cntdown[i - 1][j];
@@ -114,6 +116,7 @@ double evaluate2_sweet(Board brd, const Block &block, double &inh)
             if (!a[i][j] && a[i][j - 1] && a[i][j + 1])
                 wellsum += cntdown[i][j];
         }
+    }
 
     int holenum = 0;
     int row[MAPWIDTH + 2] = {};
