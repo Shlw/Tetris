@@ -91,10 +91,8 @@ double evaluate2_sweet(Board brd, const Block &block, double &inh)
     int* cols = brd.cols;
 
     double sweet = 0;
-    if (elim.second == 3)
-        sweet += 50;
-    if (elim.second == 4)
-        sweet += 100;
+    if (elim.second == 3) sweet += 50;
+        else if (elim.second == 4) sweet += 100;
 
     double land = block.x - elim.first - blockHalfHeight[block.t][block.o]
                   + (blockHeight[block.t][block.o] - 1) / 2.0 - 1;
