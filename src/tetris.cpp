@@ -9,6 +9,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <functional>
+#include <cstring>
 
 using namespace std;
 #define debug(x) cerr<<#x<<"="<<x<<endl
@@ -44,9 +45,20 @@ void readInput(Json::Value &input)
     Json::Reader reader;
     reader.parse(str, input);
 }
+
+int bitcount[1 << 12];
+
+void prepare(){
+    memset(bitcount, 0, sizeof(bitcount));
+    for (int i = 0; i < (1 << 12); ++i)
+        for (int j = 0; j < 12; ++j)
+            if (i & (1 << j))  ++bitcount[i];
+}
+
 int main()
 {
     //freopen("debug_in.txt","r",stdin);
+    prepare();
     Json::Value input;
     readInput(input);
 

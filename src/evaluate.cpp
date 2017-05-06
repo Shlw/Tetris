@@ -9,7 +9,9 @@
 #include <cstring>
 
 using namespace std;
+extern int bitcount[1 << 12];
 
+/*
 double evaluate2(Board a, const Block &block, double &inh)
 {
     a.place(block);
@@ -24,13 +26,13 @@ double evaluate2(Board a, const Block &block, double &inh)
             if (!a[i][j])
                 cntdown[i][j] = 1 + cntdown[i - 1][j];
 
-    /*
+    
     bool visible[MAPHEIGHT+2][MAPWIDTH+2]={};
     for (int i=1;i<=MAPWIDTH;++i) visible[MAPHEIGHT+1][i]=1;
     for (int i=MAPHEIGHT;i>0;--i)
         for (int j=1;j<=MAPWIDTH;++j)
             visible[i][j]=visible[i+1][j]&&(!a[i][j]);
-    */
+    
 
     int rowtrans = 0;
     for (int i = 1; i <= MAPHEIGHT; ++i)
@@ -80,51 +82,52 @@ double evaluate2(Board a, const Block &block, double &inh)
             - 7.899265427351652 * holenum
             - 3.3855972247263626 * wellsum;
 }
-
+*/
 double evaluate2_sweet(Board brd, const Block &block, double &inh)
 {
-    auto a = brd.grid;
-    int basenum = brd.place(block);
+    brd.place(block);
     pair<int, int> elim = brd.eliminate(&block);
 
     double sweet = 0;
-    if (basenum == 4)
-        sweet += 0;
     if (elim.second == 3)
         sweet += 50;
     if (elim.second == 4)
         sweet += 100;
 
     double land = block.x - elim.first - blockHalfHeight[block.t][block.o]
-                  + (blockHeight[block.t][block.o] - 1) / 2.0;
+                  + (blockHeight[block.t][block.o] - 1) / 2.0 - 1;
 
-    int cntdown[MAPHEIGHT + 2][MAPWIDTH + 2] = {};
+    int cntdown[MAPWIDTH + 2] = {};
     int rowtrans = 0;
-    int coltrans = 0;
     int wellsum = 0;
-    int* cur = a + 2 + MAPWIDTH;
-     
     for (int i = 1; i <= MAPHEIGHT; ++i){
-        ++cur;
+        int cur = brd.rows[i];
+        rowtrans += bitcount[cur ^ (cur >> 1)] - 1;
         for (int j = 1; j <= MAPWIDTH; ++j){
-            if (!a[i][j])
-                cntdown[i][j] = 1 + cntdown[i - 1][j];
-            if (!a[i][j] != !a[i][j - 1])
-                ++rowtrans;
-            if (!a[i][j] != !a[i - 1][j])
-                ++coltrans;
-            if (!a[i][j] && a[i][j - 1] && a[i][j + 1])
-                wellsum += cntdown[i][j];
+            cur >>= 1;
+            if (!(cur & 1)) cntdown[j] += 1;
+                else cntdown[j] = 0;
+        }
+        cur = brd.rows[i];
+        for (int j = 1; j <= MAPWIDTH; ++j){
+            if ((cur & 1) && !(cur & 2) && (cur & 4)) 
+                wellsum += cntdown[j];
+            cur >>= 1;
         }
     }
 
+    int coltrans = 0;
+    for (int i = 1; i <= MAPWIDTH; ++i){
+        int cur = brd.cols[i];
+        cur ^= cur >> 1;
+        coltrans += bitcount[cur & 2047] + bitcount[cur >> 12];
+    }
+
     int holenum = 0;
-    int row[MAPWIDTH + 2] = {};
+    int row = 0;
     for (int i = MAPHEIGHT - 1; i > 0; --i) {
-        for (int j = 1; j <= MAPWIDTH; ++j)
-            row[j] = (!a[i][j]) & (!!a[i + 1][j] | row[j]);
-        for (int j = 1; j <= MAPWIDTH; ++j)
-            holenum += row[j];
+        row = (~brd.rows[i]) & (brd.rows[i + 1] | row);
+        holenum += bitcount[row & 2047] + bitcount[row >> 12];
     }
 
 /*
