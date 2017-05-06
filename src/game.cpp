@@ -237,7 +237,7 @@ void GameBoard::play(const Json::Value &input)
 bool GameBoard::place(int id, int blockType, int x, int y, int o)
 {
     vector<Tetris> pl;
-    getPlaces(id, blockType, pl);
+    getPlaces(id, blockType, pl, false);
     bool ok = false;
     for (auto i : pl)
         if (i.blockX == x && i.blockY == y && i.orientation == o) {
@@ -257,7 +257,7 @@ void GameBoard::deplace(int id, int blockType, int x, int y, int o)
     tr.set(x, y, o).deplace();
 }
 
-vector<Tetris> &GameBoard::getPlaces(int id, int blockType, vector<Tetris> &ans)
+vector<Tetris> &GameBoard::getPlaces(int id, int blockType, vector<Tetris> &_ans, bool unique)
 {
     queue<Tetris> q;
     static bool vis[MAPHEIGHT + 2][MAPWIDTH + 2][4];
@@ -271,7 +271,7 @@ vector<Tetris> &GameBoard::getPlaces(int id, int blockType, vector<Tetris> &ans)
                 vis[tmp.blockX][tmp.blockY][tmp.orientation] = true;
             }
     }
-    ans.clear();
+    vector<Tetris> ans;
     while (!q.empty()) {
         auto &fr = q.front();
         tmp.set(fr.blockX, fr.blockY, fr.orientation);
@@ -301,7 +301,20 @@ vector<Tetris> &GameBoard::getPlaces(int id, int blockType, vector<Tetris> &ans)
             vis[tmp.blockX][tmp.blockY][tmp.orientation] = true;
         }
     }
-    return ans;
+    if (!unique)
+        return _ans = ans;
+    _ans.clear();
+    for (auto &i : ans) {
+        bool hit = false;
+        for (auto &t : _ans)
+            if (i.same(t)) {
+                hit = true;
+                break;
+            }
+        if (!hit)
+            _ans.push_back(i);
+    }
+    return _ans;
 }
 
 bool GameBoard::typeCountError(int color)
@@ -395,4 +408,33 @@ bool Tetris::rotation(int o)
         fromO = (fromO + 1) % 4;
     }
     return true;
+}
+
+bool Tetris::same(const Tetris &x)
+{
+    if (blockType != x.blockType)
+        return false;
+    pair<int, int> hash[4];
+    int i, tmpX, tmpY;
+    for (i = 0; i < 4; i++) {
+        tmpX = blockX + shape[orientation][2 * i];
+        tmpY = blockY + shape[orientation][2 * i + 1];
+        hash[i].first = tmpX, hash[i].second = tmpY;
+    }
+    for (i = 0; i < 4; i++) {
+        tmpX = x.blockX + x.shape[x.orientation][2 * i];
+        tmpY = x.blockY + x.shape[x.orientation][2 * i + 1];
+        bool ok = false;
+        for (int j = 0; j < 4 && !ok; ++j)
+            if (hash[j].first == tmpX && hash[j].second == tmpY)
+                ok = true;
+        if (!ok)
+            return false;
+    }
+    return true;
+}
+
+Tetris &Tetris::operator= (const Tetris &a)
+{
+    memcpy(this, &a, sizeof(Tetris));
 }
