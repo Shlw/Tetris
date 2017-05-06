@@ -207,7 +207,7 @@ class Slash_Simplex //这是一个时间空间都很浪费的实现方法，矩�
     bool initialize_simplex() //只会在第一次调用simplex函数时调用一次。可行的话，将初始值设好，且返回1，无可行解则返回0
     {
         int min_i, i, j;
-        double min_b = 1e9;
+        double min_b = 1e5;
         for (i = n + 1; i <= k; i++)
             if (min_b > b[i])
                 min_b = b[i], min_i = i;
@@ -280,7 +280,7 @@ double naive_place(GameBoard &gameBoard, int this_col, int this_bl_type)
     std::vector<Tetris> loc;
     gameBoard.getPlaces(this_col, this_bl_type, loc);
     int i, best_ch;
-    double best_val = -1e9, now_val;
+    double best_val = -1e5, now_val;
     Block now_bl, best_bl;
     Board myBoard(this_col, gameBoard);
 
@@ -466,7 +466,7 @@ double Place_Turn(int dep, GameBoard& gameBoard, int pl_col, int this_bl_type, i
 
 vector<int> Jam_Turn(int dep, GameBoard &gameBoard, int pl_col, vector<double> &A_i) //返回可行方案编号
 {
-    int  min_type = 1e9;
+    int  min_type = 1e5;
     vector<int> index;
     for (int i = 0; i < 7; i++)
         min_type = std::min(gameBoard.typeCountForColor[pl_col][i], min_type);
@@ -487,7 +487,7 @@ double naive_place2(GameBoard &gameBoard, int this_col, int this_bl_type, std::f
     std::vector<Tetris> loc;
     gameBoard.getPlaces(this_col, this_bl_type, loc);
     int i;
-    double best_val = -1e9, now_val;
+    double best_val = -1e5, now_val;
     Block now_bl, best_bl;
     Board myBoard(this_col, gameBoard);
     for (i = 0; i < loc.size(); i++)

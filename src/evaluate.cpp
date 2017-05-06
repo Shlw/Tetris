@@ -88,7 +88,7 @@ double evaluate2_sweet(Board a, const Block &block, double &inh)
 
     double sweet = 0;
     if (basenum == 4)
-        sweet += 20;
+        sweet += 0;
     if (elim.second == 3)
         sweet += 50;
     if (elim.second == 4)

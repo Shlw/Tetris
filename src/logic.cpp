@@ -140,5 +140,6 @@ int main(int argc, char *argv[])
     o["display"]["result"] = (winner >= 0 ? 1 - winner : winner);
     fout << writer.write(output);
     fout.close();
+    printf("winner:%d\n",winner);
     return 0;
 }
