@@ -164,7 +164,7 @@ bool GameBoard::canPut(int color, int blockType)
 void GameBoard::play(const Json::Value &input)
 {
     int nextTypeForColor[2];
-    int turnID, blockType;
+    int blockType;
 
     // 先读入第一回合，得到自己的颜色
     // 双方的第一块肯定是一样的
