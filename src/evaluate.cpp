@@ -109,9 +109,9 @@ double evaluate2_sweet(Board brd, const Block &block, double &inh)
         for (int j = 1; j <= MAPWIDTH; ++j){
             if (!a[i][j])
                 cntdown[i][j] = 1 + cntdown[i - 1][j];
-            if (!!a[i][j] != !!a[i][j - 1])
+            if (a[i][j] != a[i][j - 1])
                 ++rowtrans;
-            if (!!a[i][j] != !!a[i - 1][j])
+            if (a[i][j] != a[i - 1][j])
                 ++coltrans;
             if (!a[i][j] && a[i][j - 1] && a[i][j + 1])
                 wellsum += cntdown[i][j];
