@@ -87,6 +87,8 @@ double evaluate2_sweet(Board brd, const Block &block, double &inh)
 {
     int basenum = brd.place(block);
     pair<int, int> elim = brd.eliminate(&block);
+    int* rows = brd.rows;
+    int* cols = brd.cols;
 
     double sweet = 0;
     if (basenum == 4)
@@ -103,24 +105,19 @@ double evaluate2_sweet(Board brd, const Block &block, double &inh)
     int rowtrans = 0;
     int wellsum = 0;
     for (int i = 1; i <= MAPHEIGHT; ++i){
-        int cur = brd.rows[i];
+        int cur = rows[i];
         rowtrans += bitcount[cur ^ (cur >> 1)] - 1;
-        for (int j = 1; j <= MAPWIDTH; ++j){
-            cur >>= 1;
-            if (!(cur & 1)) cntdown[j] += 1;
-                else cntdown[j] = 0;
-        }
-        cur = brd.rows[i];
-        for (int j = 1; j <= MAPWIDTH; ++j){
-            if ((cur & 1) && !(cur & 2) && (cur & 4)) 
-                wellsum += cntdown[j];
-            cur >>= 1;
+        cur = (~cur) & (cur >> 1) & (cur << 1);
+        int j = i;
+        while (cur){
+            wellsum += bitcount[cur];
+            cur &= ~rows[--j];
         }
     }
 
     int coltrans = 0;
     for (int i = 1; i <= MAPWIDTH; ++i){
-        int cur = brd.cols[i];
+        int cur = cols[i];
         cur ^= cur >> 1;
         coltrans += bitcount[cur & 2047] + bitcount[cur >> 12];
     }
@@ -128,7 +125,7 @@ double evaluate2_sweet(Board brd, const Block &block, double &inh)
     int holenum = 0;
     int row = 0;
     for (int i = MAPHEIGHT - 1; i > 0; --i) {
-        row = (~brd.rows[i]) & (brd.rows[i + 1] | row);
+        row = (~rows[i]) & (rows[i + 1] | row);
         holenum += bitcount[row & 2047] + bitcount[row >> 12];
     }
 
