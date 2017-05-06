@@ -81,10 +81,11 @@ double evaluate2(Board a, const Block &block, double &inh)
             - 3.3855972247263626 * wellsum;
 }
 
-double evaluate2_sweet(Board a, const Block &block, double &inh)
+double evaluate2_sweet(Board brd, const Block &block, double &inh)
 {
-    int basenum = a.place(block);
-    pair<int, int> elim = a.eliminate(&block);
+    auto a = brd.grid;
+    int basenum = brd.place(block);
+    pair<int, int> elim = brd.eliminate(&block);
 
     double sweet = 0;
     if (basenum == 4)
@@ -98,24 +99,21 @@ double evaluate2_sweet(Board a, const Block &block, double &inh)
                   + (blockHeight[block.t][block.o] - 1) / 2.0 - 1;
 
     int cntdown[MAPHEIGHT + 2][MAPWIDTH + 2] = {};
+    int rowtrans = 0;
+    int coltrans = 0;
+    int wellsum = 0;
+     
     for (int i = 1; i <= MAPHEIGHT; ++i)
-        for (int j = 1; j <= MAPWIDTH; ++j)
+        for (int j = 1; j <= MAPWIDTH; ++j){
             if (!a[i][j])
                 cntdown[i][j] = 1 + cntdown[i - 1][j];
-
-    /*
-    bool visible[MAPHEIGHT+2][MAPWIDTH+2]={};
-    for (int i=1;i<=MAPWIDTH;++i) visible[MAPHEIGHT+1][i]=1;
-    for (int i=MAPHEIGHT;i>0;--i)
-        for (int j=1;j<=MAPWIDTH;++j)
-            visible[i][j]=visible[i+1][j]&&(!a[i][j]);
-    */
-
-    int rowtrans = 0;
-    for (int i = 1; i <= MAPHEIGHT; ++i)
-        for (int j = 1; j <= MAPWIDTH + 1; ++j)
             if (!!a[i][j] != !!a[i][j - 1])
                 ++rowtrans;
+            if (!!a[i][j] != !!a[i - 1][j])
+                ++coltrans;
+            if (!a[i][j] && a[i][j - 1] && a[i][j + 1])
+                wellsum += cntdown[i][j];
+        }
 
     int holenum = 0;
     int row[MAPWIDTH + 2] = {};
@@ -126,18 +124,7 @@ double evaluate2_sweet(Board a, const Block &block, double &inh)
             holenum += row[j];
     }
 
-    int coltrans = 0;
-    for (int i = 1; i <= MAPHEIGHT; ++i)
-        for (int j = 1; j <= MAPWIDTH; ++j)
-            if (!!a[i][j] != !!a[i - 1][j])
-                ++coltrans;
-
-    int wellsum = 0;
-    for (int i = 1; i <= MAPHEIGHT; ++i)
-        for (int j = 1; j <= MAPWIDTH; ++j)
-            if (!a[i][j] && a[i][j - 1] && a[i][j + 1])
-                wellsum += cntdown[i][j];
-
+/*
     int maxheight = 0;
     for (int i = MAPHEIGHT; i >= 1; --i) {
         int cnt = 0;
@@ -149,6 +136,7 @@ double evaluate2_sweet(Board a, const Block &block, double &inh)
             break;
         }
     }
+*/
 
     inh = - 4.500158825082766 * land
           + 3.4181268101392694 * elim.first
