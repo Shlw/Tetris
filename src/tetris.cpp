@@ -28,10 +28,7 @@ void decide(int &blockForEnemy, int &finalX, int &finalY, int &finalO)
 {
     set_Eval(evaluate2_sweet);
     int tmp;
-    //naive_place(gameBoard, gameBoard.currBotColor, gameBoard.currBlockType);
-    //if(gameBoard.turnID %2)
     Place_Turn(1, gameBoard, gameBoard.currBotColor, gameBoard.currBlockType, finalX, finalY, finalO, tmp);
-    //else naive_place2(gameBoard, gameBoard.currBotColor, gameBoard.currBlockType, evaluate2, finalX, finalY, finalO);
     //while(1);
     Place_Turn(1, gameBoard, gameBoard.currBotColor ^ 1, gameBoard.enemyType, tmp, tmp, tmp, blockForEnemy);
     //naive_place(gameBoard, gameBoard.currBotColor, gameBoard.currBlockType, evaluate3, finalX, finalY, finalO);
@@ -49,7 +46,7 @@ void readInput(Json::Value &input)
 }
 int main()
 {
-    //freopen("in_11_0.txt","r",stdin);
+    //freopen("debug_in.txt","r",stdin);
     Json::Value input;
     readInput(input);
 

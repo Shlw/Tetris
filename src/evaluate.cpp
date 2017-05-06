@@ -10,7 +10,7 @@
 
 using namespace std;
 
-double evaluate2(Board a, const Block &block)
+double evaluate2(Board a, const Block &block, double &inh)
 {
     a.place(block);
     int rowelim = a.eliminate().first;
@@ -71,6 +71,8 @@ double evaluate2(Board a, const Block &block)
         }
     }
 
+    inh = - 4.500158825082766 * land
+            + 3.4181268101392694 * rowelim;
     return  - 4.500158825082766 * land
             + 3.4181268101392694 * rowelim
             - 3.2178882868487753 * rowtrans
@@ -79,10 +81,8 @@ double evaluate2(Board a, const Block &block)
             - 3.3855972247263626 * wellsum;
 }
 
-double evaluate2_sweet(Board a, const Block &block)
+double evaluate2_sweet(Board a, const Block &block, double &inh)
 {
-    if (block.x == 7 && block.y == 2 && block.o == 1 || block.x == 9 && block.y == 4 && block.o == 1)
-        printf("!!\n");
     int basenum = a.place(block);
     pair<int, int> elim = a.eliminate(&block);
 
@@ -149,6 +149,10 @@ double evaluate2_sweet(Board a, const Block &block)
             break;
         }
     }
+
+    inh = - 4.500158825082766 * land
+          + 3.4181268101392694 * elim.first
+          + sweet;
 
     return  - 4.500158825082766 * land
             + 3.4181268101392694 * elim.first

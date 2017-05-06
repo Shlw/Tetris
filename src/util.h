@@ -30,7 +30,7 @@ public:
 };
 
 double evaluate1(Board a,const Block& block);
-double evaluate2(Board a,const Block& block);
-double evaluate2_sweet(Board a,const Block& block);
+double evaluate2(Board a,const Block& block, double &);
+double evaluate2_sweet(Board a,const Block& block, double&);
 
 #endif 

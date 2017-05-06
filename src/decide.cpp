@@ -3,8 +3,12 @@
 #include <iostream>
 #include <cstring>
 #include <ctime>
+#include <set>
+//#define DEBUG_DECIDE
 #define DEPTH_LIM 3
+#define MAX_SEARCH 20
 #define debug(x) std::cerr << #x << "=" << x << std::endl
+#define MP(x,y) make_pair(x,y)
 using namespace std;
 #define N 55
 #define M 55
@@ -123,6 +127,7 @@ class Slash_Simplex //这是一个时间空间都很浪费的实现方法，矩�
     void pivot(int l, int e) //把 e 变成基本变量（即 e 是替入变量)
     {
         //先计算关于 x_e 的方程的新系数
+        //debug("pivot");
         int i, j;
         b[e] = b[l] / a[l][e];
         b[l] = 0;
@@ -152,6 +157,7 @@ class Slash_Simplex //这是一个时间空间都很浪费的实现方法，矩�
 
         basic[e] = 1;
         basic[l] = 0;
+        //debug("end pivot");
     }
 
     int get_pivot_index() //判断是否还有在目标函数中系数为正的非基础变量，有则返回序号最小的(bland rule)，没有则返回 0
@@ -169,6 +175,7 @@ class Slash_Simplex //这是一个时间空间都很浪费的实现方法，矩�
             if (!initialize_simplex())
                 return -1;
         //Print();
+        //debug("simplex");
         int i, e, l;
         while (e = get_pivot_index())
         {
@@ -193,6 +200,7 @@ class Slash_Simplex //这是一个时间空间都很浪费的实现方法，矩�
                 pivot(l, e);
         }
         rel = v;
+        //debug("end simplex");
         return 0;
     }
 
@@ -232,6 +240,7 @@ class Slash_Simplex //这是一个时间空间都很浪费的实现方法，矩�
                     c[i] = 0;
                 }
             delete Laux;
+            //debug("end init");
             return 1;
         }
         else
@@ -242,10 +251,24 @@ class Slash_Simplex //这是一个时间空间都很浪费的实现方法，矩�
     }
 };
 
+#define F_ROUND_WIGHT 0.3
+struct Plan
+{
+    double eva,inh;
+    int idx;
+    Plan(double _eva, double _inh, int _idx):eva(_eva),inh(_inh),idx(_idx) {}
+    bool operator < (const Plan &t) const
+    {
+        if(eva == t.eva)
+            return MP(inh, idx) > MP(t.inh, t.idx);
+        else return eva > t.eva;
+    }
+};
 
-std::function<double(Board, const Block &)> Eval;
+std::function<double(Board, const Block &, double &)> Eval;
 int nouse;
-void set_Eval(std::function<double(Board, const Block &)> EFun)
+double dnouse;
+void set_Eval(std::function<double(Board, const Block &, double &)> EFun)
 {
     Eval = EFun;
 }
@@ -265,7 +288,7 @@ double naive_place(GameBoard &gameBoard, int this_col, int this_bl_type)
     for (i = 0; i < loc.size(); i++)
     {
         now_bl = Block(loc[i]);
-        now_val = Eval(myBoard, now_bl);
+        now_val = Eval(myBoard, now_bl, dnouse);
         /*
         if(global_i == 30 && i == 29)
         {
@@ -296,39 +319,64 @@ double Place_Turn(int dep, GameBoard& gameBoard, int pl_col, int this_bl_type, i
     int i, j, n, m;
     vector<vector<double> > A(loc.size());
     vector<int> index;
+    set<Plan> s;
     GameBoard nowBoard;
 
     for (i = 0; i < loc.size(); i++)
     {
         global_i = i;
-        //debug(i);
-        //debug(loc[i].blockX);
-        //debug(loc[i].blockY);
-        //debug(loc[i].orientation);
+        #ifdef DEBUG_DECIDE
+        debug(i);
+        debug(loc[i].blockX);
+        debug(loc[i].blockY);
+        debug(loc[i].orientation);
+        #endif
         Board myBoard(pl_col, gameBoard);
         Block now_bl = Block(loc[i]);
-        double now_val = Eval(myBoard, now_bl);
+        double inh;
+        double now_val = Eval(myBoard, now_bl, inh);
+        s.insert(Plan(now_val, inh, i));
+    }
         //debug(now_val);
+    set<Plan>::iterator it=s.begin();
+    for (i = 0; i < min((int)loc.size(), MAX_SEARCH); i++, it++)    
+    {
+        int ind = (*it).idx;
+        //debug(ind);
+        #ifdef DEBUG_DECIDE
+        debug(loc[ind].blockX);
+        debug(loc[ind].blockY);
+        debug(loc[ind].orientation);
+        debug((*it).eva);
+        #endif
         nowBoard = gameBoard;
-        nowBoard.place(pl_col, this_bl_type, loc[i].blockX, loc[i].blockY, loc[i].orientation);
+        nowBoard.place(pl_col, this_bl_type, loc[ind].blockX, loc[ind].blockY, loc[ind].orientation);
         nowBoard.eliminate(pl_col);
         index = Jam_Turn(dep + 1, nowBoard, pl_col, A[i]);
     }
-    n = loc.size();
+    n = min((int)loc.size(), MAX_SEARCH);
     m = A[0].size();
 
     //debug(n);
     //debug(m);
-    /*
-    for(i = 0; i < n; i++)
+    for(it = s.begin(), i = 0; i < n; i++, it++)
     {
+        double val = (*it).eva;
+        double inh = (*it).inh;
         for (j = 0; j < m; j++)
+        {
+            #ifdef DEBUG_DECIDE
             cerr << A[i][j] << " ";
+            #endif
+            A[i][j] += val * F_ROUND_WIGHT;
+            A[i][j] += inh;
+        }
+        #ifdef DEBUG_DECIDE
         cerr << endl;
-    }*/
+        #endif
+    }
     Standard_Simplex ss;
-    ss.n = n + 2;
-    ss.m = m + 2;
+    ss.n = n + 2, ss.m = m + 2;
     ss.c[n+1] = 1;
     ss.c[n+2] = -1;
     for(i = 1; i <= m; i++)
@@ -349,12 +397,9 @@ double Place_Turn(int dep, GameBoard& gameBoard, int pl_col, int this_bl_type, i
     Slash_Simplex as(ss);
     //as.Print();
     int zt = as.simplex(0);
-    //as.Print();
-    //debug(zt);
-    //debug(as.rel);
+    //debug("end*******************************************");
     if(dep != 1) //不是第一层就不用考虑决策的事情
         return as.rel;
-
     //决策过程
     srand(gameBoard.turnID * time(0));
     double p1[45], p2[45], rd, sum;
@@ -364,17 +409,28 @@ double Place_Turn(int dep, GameBoard& gameBoard, int pl_col, int this_bl_type, i
         if(as.basic[i])
             p1[i] = as.b[i];
         else p1[i] = 0;
-        //cerr << p1[i] << " ";
+        #ifdef DEBUG_DECIDE
+        cerr << p1[i] << " ";
+        #endif
     }
-    //cerr << endl;
+    #ifdef DEBUG_DECIDE
+    cerr << endl;
+    #endif
     for (i = 1; i <= m; i++) //得到对偶的答案
     {
         if(!as.basic[i+n+2])
             p2[i] = -as.c[i+n+2];
         else p2[i] = 0;
-        //cerr << p2[i] << " ";
+        #ifdef DEBUG_DECIDE
+        cerr << p2[i] << " ";
+        #endif
     }
-    //cerr << endl;
+
+    //debug("get ans");
+    #ifdef DEBUG_DECIDE
+    cerr << endl;
+    #endif
+    
 
     sum = 0;
     rd = (double)(rand()%10000) / 10000.0;
@@ -386,10 +442,15 @@ double Place_Turn(int dep, GameBoard& gameBoard, int pl_col, int this_bl_type, i
             break;
         }
         else sum += p1[i];
-    finalX = loc[ch1].blockX;
-    finalY = loc[ch1].blockY;
-    finalO = loc[ch1].orientation;
     //debug(ch1);
+    //debug("get ch1");
+    for (it = s.begin(), i = 0; i < ch1; i++, it++);
+    int ind = (*it).idx;
+    finalX = loc[ind].blockX;
+    finalY = loc[ind].blockY;
+    finalO = loc[ind].orientation;
+    //debug(ch1);
+    //debug("get loc");
 
     sum = 0;
     rd = (double)(rand()%10000) / 10000.0;
@@ -444,6 +505,23 @@ double naive_place2(GameBoard &gameBoard, int this_col, int this_bl_type, std::f
     finalO = best_bl.o;
     return best_val;
 }
+
+//验算一下对偶的答案是否一样
+    /*
+    double check_rel = -1e9;
+    for (i = 1; i <= n; i++)
+    {
+        double check_sum = 0;
+        for (j = 1; j <= m; j++)
+        {
+            check_sum += A[i-1][j-1]*p2[j];
+        }
+        check_rel = max(check_rel, check_sum);
+    }
+    debug(as.rel);
+    debug(check_rel);
+    */
+    //cerr << endl;
 
 /*
 void naive_jam(GameBoard &gameBoard, std::function<double(Board, const Block&)> Eval, int &blockForEnemy)
