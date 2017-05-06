@@ -64,7 +64,7 @@ public:
 
     void deplace(int id, int blockType, int x, int y, int o); // 取消放置新块
 
-    std::vector<Tetris> &getPlaces(int id, int blockType, std::vector<Tetris> &ans);
+    std::vector<Tetris> &getPlaces(int id, int blockType, std::vector<Tetris> &ans, bool unique = true);
 
     bool typeCountError(int color); // 该玩家方块使用数目是否异常
 };
@@ -110,6 +110,11 @@ public:
 
     // 检查能否逆时针旋转自己到o
     bool rotation(int o);
+
+    // 检查是否形状和位置一样
+    bool same(const Tetris &x);
+
+    Tetris &operator= (const Tetris &a);
 };
 
 #endif
