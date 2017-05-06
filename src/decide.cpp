@@ -280,7 +280,7 @@ double naive_place(GameBoard &gameBoard, int this_col, int this_bl_type)
     std::vector<Tetris> loc;
     gameBoard.getPlaces(this_col, this_bl_type, loc);
     int i, best_ch;
-    double best_val = -1e9, now_val;
+    double best_val = -1e5, now_val;
     Block now_bl, best_bl;
     Board myBoard(this_col, gameBoard);
 
@@ -337,6 +337,8 @@ double Place_Turn(int dep, GameBoard& gameBoard, int pl_col, int this_bl_type, i
         double now_val = Eval(myBoard, now_bl, inh);
         s.insert(Plan(now_val, inh, i));
     }
+    //debug(loc.size());
+    //debug(s.size());
         //debug(now_val);
     set<Plan>::iterator it=s.begin();
     for (i = 0; i < min((int)loc.size(), MAX_SEARCH); i++, it++)    
@@ -435,6 +437,8 @@ double Place_Turn(int dep, GameBoard& gameBoard, int pl_col, int this_bl_type, i
     sum = 0;
     rd = (double)(rand()%10000) / 10000.0;
     //debug(rd);
+    //debug(n);
+    //debug(p1[1]);
     for (i = 1; i <= n; i++)
         if(sum + p1[i] > rd)
         {
@@ -444,8 +448,11 @@ double Place_Turn(int dep, GameBoard& gameBoard, int pl_col, int this_bl_type, i
         else sum += p1[i];
     //debug(ch1);
     //debug("get ch1");
-    for (it = s.begin(), i = 0; i < ch1; i++, it++);
+    for (it = s.begin(), i = 0; i < ch1; i++, it++)
+        ;
     int ind = (*it).idx;
+    //debug(it->idx);
+    //debug(ind);
     finalX = loc[ind].blockX;
     finalY = loc[ind].blockY;
     finalO = loc[ind].orientation;

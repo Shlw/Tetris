@@ -53,7 +53,7 @@ void readInput(Json::Value &input)
 }
 int main()
 {
-    //freopen("debug_in.txt","r",stdin);
+    //freopen("debug_in2.txt","r",stdin);
     Json::Value input;
     readInput(input);
 
