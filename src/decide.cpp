@@ -5,8 +5,8 @@
 #include <ctime>
 #include <set>
 //#define DEBUG_DECIDE
-#define DEPTH_LIM 3
-#define MAX_SEARCH 20
+#define DEPTH_LIM 5
+#define MAX_SEARCH 10
 #define debug(x) std::cerr << #x << "=" << x << std::endl
 #define MP(x,y) make_pair(x,y)
 using namespace std;
@@ -321,7 +321,8 @@ double Place_Turn(int dep, GameBoard& gameBoard, int pl_col, int this_bl_type, i
     vector<int> index;
     set<Plan> s;
     GameBoard nowBoard;
-
+    if(loc.size() == 0)
+        return -1e5;
     for (i = 0; i < loc.size(); i++)
     {
         global_i = i;
