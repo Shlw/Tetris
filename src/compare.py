@@ -7,7 +7,8 @@ if len(sys.argv) != 3:
 p0, p1 = sys.argv[1], sys.argv[2]
 cnt0 = 0
 cnt1 = 0
-N = 20
+cnt2 = 0
+N = 100
 for i in range(N):
     os.system("./logic %s %s cmplog.txt > cmp.txt" % (p0, p1))
     with open("cmp.txt", "r") as f:
@@ -16,4 +17,5 @@ for i in range(N):
     print(win)
     if win == 0: cnt0+=1
     if win == 1: cnt1+=1
-print("%s : %s = %.2f : %.2f" % (p0, p1, float(cnt0)/N, float(cnt1)/N))
+    if win == -1: cnt2+=1
+print("%s : %s = %.2f : %.2f" % (p0, p1, (cnt0+0.5*cnt2)/N, (cnt1+0.5*cnt2)/N))

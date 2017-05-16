@@ -5,7 +5,8 @@
 #include <ctime>
 #include <set>
 //#define DEBUG_DECIDE
-#define DEPTH_LIM 5
+#define DEPTH_LIM_1 5
+#define DEPTH_LIM_2 5
 #define MAX_SEARCH 10
 #define debug(x) std::cerr << #x << "=" << x << std::endl
 #define MP(x,y) make_pair(x,y)
@@ -13,8 +14,8 @@ using namespace std;
 #define N 55
 #define M 55
 #define K 105
-#define F_ROUND_WIGHT 0.40
-#define CHOOSE_TYPE 3
+const double F_ROUND_WIGHT[7]={0, 0.40, 0, 0.10, 0};
+#define CHOOSE_TYPE 2
 
 const double eps = 1e-9;
 int dcmp(double x)
@@ -360,7 +361,7 @@ void get_CH(double *p1, int n, int &ch1)
 
 double Place_Turn(int dep, GameBoard& gameBoard, int pl_col, int this_bl_type, int &finalX = nouse, int &finalY = nouse, int &finalO = nouse, int &blockFE = nouse) //floc 表示最终选的块的位置,blockFE表示给敌人的块
 {
-    if (dep == DEPTH_LIM) //最后一层直接贪
+    if (dep == (gameBoard.turnID < 10 ? DEPTH_LIM_2 : DEPTH_LIM_1)) //最后一层直接贪
         return naive_place(gameBoard, pl_col, this_bl_type);
     //debug(dep);
     std::vector<Tetris> loc;
@@ -418,7 +419,7 @@ double Place_Turn(int dep, GameBoard& gameBoard, int pl_col, int this_bl_type, i
             #ifdef DEBUG_DECIDE
             cerr << A[i][j] << " ";
             #endif
-            A[i][j] += val * F_ROUND_WIGHT;
+            A[i][j] += val * F_ROUND_WIGHT[dep];
             A[i][j] += inh;
         }
         #ifdef DEBUG_DECIDE
@@ -492,6 +493,19 @@ double Place_Turn(int dep, GameBoard& gameBoard, int pl_col, int this_bl_type, i
     //debug("get loc");
 
     get_CH(p2,m,ch2);
+
+    /*sum = 0;
+    max_p = 0;
+    rd = (double)(rand()%10000) / 10000.0;
+    for (i = 1; i <= m; i++)
+        if(p2[i] >= max_p)
+        {
+            ch2 = i - 1;
+            max_p = p2[i];
+            //break;
+        }
+        //else sum += p2[i];
+    */
     blockFE = index[ch2];
 }
 
