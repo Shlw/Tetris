@@ -26,13 +26,13 @@ double evaluate2(Board a, const Block &block, double &inh)
             if (!a[i][j])
                 cntdown[i][j] = 1 + cntdown[i - 1][j];
 
-    
+
     bool visible[MAPHEIGHT+2][MAPWIDTH+2]={};
     for (int i=1;i<=MAPWIDTH;++i) visible[MAPHEIGHT+1][i]=1;
     for (int i=MAPHEIGHT;i>0;--i)
         for (int j=1;j<=MAPWIDTH;++j)
             visible[i][j]=visible[i+1][j]&&(!a[i][j]);
-    
+
 
     int rowtrans = 0;
     for (int i = 1; i <= MAPHEIGHT; ++i)
@@ -85,18 +85,23 @@ double evaluate2(Board a, const Block &block, double &inh)
 */
 double evaluate2_sweet(Board brd, const Block &block, double &inh)
 {
-    int basenum = brd.place(block);
-    pair<int, int> elim = brd.eliminate(&block);
-    int* rows = brd.rows;
-    int* cols = brd.cols;
+    brd.place(block);
+    int nobase;
+    pair<int, int> elim;
+    brd.eliminate(&block, &elim, &nobase);
+    int *rows = brd.rows;
+    int *cols = brd.cols;
 
     double sweet = 0;
-    if (basenum == 4)
+    if (nobase == 0) {
         sweet += 10;
-    if (elim.second == 3)
-        sweet += 50;
-    if (elim.second == 4)
-        sweet += 100;
+        if (elim.second == 3)
+            sweet += 50;
+        if (elim.second == 4)
+            sweet += 100;
+    }
+    //printf("%d %d %d\n", block.x, block.y, block.o);
+    //printf("%d %d %d\n",elim.first,elim.second,nobase);
 
     double land = block.x - elim.first - blockHalfHeight[block.t][block.o]
                   + (blockHeight[block.t][block.o] - 1) / 2.0 - 1;
@@ -104,19 +109,19 @@ double evaluate2_sweet(Board brd, const Block &block, double &inh)
     int cntdown[MAPWIDTH + 2] = {};
     int rowtrans = 0;
     int wellsum = 0;
-    for (int i = 1; i <= MAPHEIGHT; ++i){
+    for (int i = 1; i <= MAPHEIGHT; ++i) {
         int cur = rows[i];
         rowtrans += bitcount[cur ^ (cur >> 1)] - 1;
         cur = (~cur) & (cur >> 1) & (cur << 1);
         int j = i;
-        while (cur){
+        while (cur) {
             wellsum += bitcount[cur];
             cur &= ~rows[--j];
         }
     }
 
     int coltrans = 0;
-    for (int i = 1; i <= MAPWIDTH; ++i){
+    for (int i = 1; i <= MAPWIDTH; ++i) {
         int cur = cols[i];
         cur ^= cur >> 1;
         coltrans += bitcount[cur & 2047] + bitcount[cur >> 12];
@@ -128,21 +133,17 @@ double evaluate2_sweet(Board brd, const Block &block, double &inh)
         row = (~rows[i]) & (rows[i + 1] | row);
         holenum += bitcount[row & 2047] + bitcount[row >> 12];
     }
-
-/*
-    int maxheight = 0;
-    for (int i = MAPHEIGHT; i >= 1; --i) {
-        int cnt = 0;
-        for (int j = 1; j <= MAPWIDTH; ++j)
-            if (a[i][j])
-                ++cnt;
-        if (cnt) {
-            maxheight = i;
-            break;
+    /*
+        int maxheight = 0;
+        for (int i = MAPHEIGHT; i >= 1; --i) {
+            int cnt = 0;
+            if (rows[i] ^ 1 ^ (1 << (MAPWIDTH + 1))) {
+                maxheight = i;
+                break;
+            }
         }
-    }
-*/
-const double p[6]={5.00016,1.11813,6.71788,12.3487,11.3993,8.2856};
+    */
+    const double p[6] = {5.00016, 1.11813, 6.71788, 12.3487, 11.3993, 8.2856};
     inh = - p[0] * land
           + p[1] * elim.first
           + sweet;

@@ -257,21 +257,32 @@ void GameBoard::deplace(int id, int blockType, int x, int y, int o)
     tr.set(x, y, o).deplace();
 }
 
-vector<Tetris> &GameBoard::getPlaces(int id, int blockType, vector<Tetris> &_ans, bool unique)
+vector<Tetris> &GameBoard::getPlaces(int id, int blockType, vector<Tetris> &ans, bool unique)
 {
     queue<Tetris> q;
     static bool vis[MAPHEIGHT + 2][MAPWIDTH + 2][4];
     memset(vis, 0, sizeof(vis));
     Tetris tmp(this, blockType, id);
+    int mh = MAPHEIGHT;
+    while (1) {
+        bool hv = false;
+        for (int i = 1; i <= MAPWIDTH && !hv; ++i)
+            if (gridInfo[id][mh][i] != 0)
+                hv = true;
+        if (hv)
+            break;
+        --mh;
+    }
     for (int o = 0; o < 4; ++o) {
         int xo = MAPHEIGHT + blockHalfHeight[blockType][o] - blockHeight[blockType][o] + 1;
+        xo = min(xo, mh + blockHeight[blockType][o] + 1);
         for (int y = 1; y <= MAPWIDTH; ++y)
             if (tmp.set(xo, y, o).isValid()) {
                 q.push(tmp);
                 vis[tmp.blockX][tmp.blockY][tmp.orientation] = true;
             }
     }
-    vector<Tetris> ans;
+    //vector<Tetris> ans;
     while (!q.empty()) {
         auto &fr = q.front();
         tmp.set(fr.blockX, fr.blockY, fr.orientation);
@@ -294,14 +305,16 @@ vector<Tetris> &GameBoard::getPlaces(int id, int blockType, vector<Tetris> &_ans
             vis[tmp.blockX][tmp.blockY][tmp.orientation] = true;
         }
         ++tmp.blockX;
-        int o2 = (tmp.orientation + 1) % 4;
-        if (tmp.rotation(o2) && !vis[tmp.blockX][tmp.blockY][o2]) {
-            tmp.orientation = o2;
-            q.push(tmp);
-            vis[tmp.blockX][tmp.blockY][tmp.orientation] = true;
+        if (blockType != 6) {
+            int o2 = (tmp.orientation + 1) % 4;
+            if (tmp.rotation(o2) && !vis[tmp.blockX][tmp.blockY][o2]) {
+                tmp.orientation = o2;
+                q.push(tmp);
+                vis[tmp.blockX][tmp.blockY][tmp.orientation] = true;
+            }
         }
     }
-    if (!unique)
+    /*if (!unique)
         return _ans = ans;
     _ans.clear();
     for (auto &i : ans) {
@@ -314,7 +327,7 @@ vector<Tetris> &GameBoard::getPlaces(int id, int blockType, vector<Tetris> &_ans
         if (!hit)
             _ans.push_back(i);
     }
-    return _ans;
+    return _ans;*/
 }
 
 bool GameBoard::typeCountError(int color)
@@ -357,7 +370,6 @@ bool Tetris::isValid(int x, int y, int o)
     }
     return true;
 }
-
 bool Tetris::onGround()
 {
     if (isValid() && !isValid(blockX - 1))

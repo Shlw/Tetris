@@ -4,7 +4,8 @@
 #include "game.h"
 #include <utility>
 
-class Block{
+class Block
+{
 public:
     int x, y, o;
     int t; // 类型
@@ -14,7 +15,8 @@ public:
     Block(Tetris te);
 };
 
-class Board{
+class Board
+{
 public:
     const static int FULL_ROW = (1 << (MAPWIDTH + 2)) - 1;
     const static int FULL_COL = (1 << (MAPHEIGHT + 1)) - 1;
@@ -26,16 +28,16 @@ public:
     Board();
     Board(int color, const GameBoard &gameBoard);
     void setFrame();
-    int place(const Block &);
+    void place(const Block &);
     void deplace(const Block &);
-    std::pair<int,int> eliminate(const Block *block = NULL); // 返回消去的行数，块数
+    void eliminate(const Block *block = NULL, std::pair<int, int> *elim = NULL, int *nobase = NULL);
 
 };
 
-double evaluate1(Board a,const Block& block);
-double evaluate2(Board a,const Block& block, double &);
-double evaluate2_sweet(Board a,const Block& block, double&);
+double evaluate1(Board a, const Block &block);
+double evaluate2(Board a, const Block &block, double &);
+double evaluate2_sweet(Board a, const Block &block, double &);
 
 extern int bitcount[1 << 12];
 
-#endif 
+#endif

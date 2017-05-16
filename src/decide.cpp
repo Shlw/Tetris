@@ -6,7 +6,7 @@
 #include <set>
 //#define DEBUG_DECIDE
 #define DEPTH_LIM_1 5
-#define DEPTH_LIM_2 3
+#define DEPTH_LIM_2 5
 #define MAX_SEARCH 10
 #define debug(x) std::cerr << #x << "=" << x << std::endl
 #define MP(x,y) make_pair(x,y)
@@ -14,6 +14,7 @@ using namespace std;
 #define N 55
 #define M 55
 #define K 105
+#define F_ROUND_WIGHT 0.3
 
 const double eps = 1e-9;
 int dcmp(double x)
@@ -252,7 +253,6 @@ class Slash_Simplex //这是一个时间空间都很浪费的实现方法，矩�
     }
 };
 
-#define F_ROUND_WIGHT 0.3
 struct Plan
 {
     double eva,inh;
@@ -432,7 +432,18 @@ double Place_Turn(int dep, GameBoard& gameBoard, int pl_col, int this_bl_type, i
     #ifdef DEBUG_DECIDE
     cerr << endl;
     #endif
-    
+/*
+    double sp1 = 0, sp2 = 0;
+    for (int i = 1; i <= n; ++i)
+        p1[i] = p1[i] * p1[i], sp1 += p1[i];
+    for (int i = 1; i <= n; ++i)
+        p1[i] /= sp1;
+    for (int i = 1; i <= m; ++i)
+        p2[i] = p2[i] * p2[i], sp2 += p2[i];
+    for (int i = 1; i <= m; ++i)
+        p2[i] /= sp2;
+*/  
+    double max_p;
 
     sum = 0;
     rd = (double)(rand()%10000) / 10000.0;
@@ -444,6 +455,19 @@ double Place_Turn(int dep, GameBoard& gameBoard, int pl_col, int this_bl_type, i
             break;
         }
         else sum += p1[i];
+    /*sum = 0;
+    max_p = 0;
+    rd = (double)(rand()%10000) / 10000.0;
+    //debug(rd);
+    for (i = 1; i <= n; i++)
+        if(p1[i] >= max_p)
+        {
+            ch1 = i - 1;
+            max_p = p1[i];
+            //break;
+        }
+        //else sum += p1[i];
+    */
     //debug(ch1);
     //debug("get ch1");
     for (it = s.begin(), i = 0; i < ch1; i++, it++);
@@ -453,7 +477,6 @@ double Place_Turn(int dep, GameBoard& gameBoard, int pl_col, int this_bl_type, i
     finalO = loc[ind].orientation;
     //debug(ch1);
     //debug("get loc");
-
     sum = 0;
     rd = (double)(rand()%10000) / 10000.0;
     for (i = 1; i <= m; i++)
@@ -463,6 +486,18 @@ double Place_Turn(int dep, GameBoard& gameBoard, int pl_col, int this_bl_type, i
             break;
         }
         else sum += p2[i];
+    /*sum = 0;
+    max_p = 0;
+    rd = (double)(rand()%10000) / 10000.0;
+    for (i = 1; i <= m; i++)
+        if(p2[i] >= max_p)
+        {
+            ch2 = i - 1;
+            max_p = p2[i];
+            //break;
+        }
+        //else sum += p2[i];
+    */
     blockFE = index[ch2];
 }
 
