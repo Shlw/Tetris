@@ -4,6 +4,7 @@
 #include <cstring>
 #include <ctime>
 #include <set>
+#include <cmath>
 //#define DEBUG_DECIDE
 #define DEPTH_LIM_1 5
 #define DEPTH_LIM_2 5
@@ -15,7 +16,9 @@ using namespace std;
 #define M 55
 #define K 105
 const double F_ROUND_WIGHT[7]={0, 0.40, 0, 0.10, 0};
-#define CHOOSE_TYPE 2
+#define CHOOSE_TYPE 4
+//1 表示一次方，2表示二次方，3表示取最大值，4表示1.5次方，代号分别为 u,s,m,h
+//当前 bot 命名为 h_40_10
 
 const double eps = 1e-9;
 int dcmp(double x)
@@ -328,12 +331,17 @@ void get_CH(double *p1, int n, int &ch1)
             }
             else sum += p1[i];
     }
-    else if(CHOOSE_TYPE==2)//把概率平方处理
+    else if(CHOOSE_TYPE==2||CHOOSE_TYPE==4)//把概率平方处理
     {
         //先平方，然后归一化一下
         sum = 0;
         for (i = 1; i <= n; i++)
-            p1[i]=p1[i]*p1[i],sum+=p1[i];
+        {
+            if(CHOOSE_TYPE==2)
+                p1[i]=p1[i]*p1[i];
+            else p1[i]=pow(p1[i],1.5);
+            sum+=p1[i];
+        }
         for (i = 1; i <= n; i++)
             p1[i]=p1[i]/sum;
         sum=0;
