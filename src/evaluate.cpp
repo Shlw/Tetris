@@ -85,23 +85,19 @@ double evaluate2(Board a, const Block &block, double &inh)
 */
 double evaluate2_sweet(Board brd, const Block &block, double &inh)
 {
-    brd.place(block);
-    int nobase;
-    pair<int, int> elim;
-    brd.eliminate(&block, &elim, &nobase);
+    int basenum = brd.place(block);
+    pair<int, int> elim = brd.eliminate(&block);
     int *rows = brd.rows;
     int *cols = brd.cols;
 
     double sweet = 0;
-    if (nobase == 0) {
+    if (basenum == 4) {
         sweet += 10;
         if (elim.second == 3)
             sweet += 50;
         if (elim.second == 4)
             sweet += 100;
     }
-    //printf("%d %d %d\n", block.x, block.y, block.o);
-    //printf("%d %d %d\n",elim.first,elim.second,nobase);
 
     double land = block.x - elim.first - blockHalfHeight[block.t][block.o]
                   + (blockHeight[block.t][block.o] - 1) / 2.0 - 1;
@@ -133,11 +129,15 @@ double evaluate2_sweet(Board brd, const Block &block, double &inh)
         row = (~rows[i]) & (rows[i + 1] | row);
         holenum += bitcount[row & 2047] + bitcount[row >> 12];
     }
+
     /*
         int maxheight = 0;
         for (int i = MAPHEIGHT; i >= 1; --i) {
             int cnt = 0;
-            if (rows[i] ^ 1 ^ (1 << (MAPWIDTH + 1))) {
+            for (int j = 1; j <= MAPWIDTH; ++j)
+                if (a[i][j])
+                    ++cnt;
+            if (cnt) {
                 maxheight = i;
                 break;
             }
