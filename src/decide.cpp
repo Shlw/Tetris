@@ -14,7 +14,8 @@ using namespace std;
 #define N 55
 #define M 55
 #define K 105
-#define F_ROUND_WIGHT 0.3
+const double F_ROUND_WIGHT[7]={0, 0.40, 0, 0.10, 0};
+#define CHOOSE_TYPE 2
 
 const double eps = 1e-9;
 int dcmp(double x)
@@ -310,6 +311,54 @@ double naive_place(GameBoard &gameBoard, int this_col, int this_bl_type)
     return best_val;
 }
 
+void get_CH(double *p1, int n, int &ch1)
+{
+    double sum;
+    double rd;
+    int i;
+    if(CHOOSE_TYPE==1)
+    {
+        sum = 0;
+        rd = (double)(rand()%10000) / 10000.0;
+        for (i = 1; i <= n; i++)
+            if(sum + p1[i] > rd)
+            {
+                ch1 = i - 1;
+                break;
+            }
+            else sum += p1[i];
+    }
+    else if(CHOOSE_TYPE==2)//把概率平方处理
+    {
+        //先平方，然后归一化一下
+        sum = 0;
+        for (i = 1; i <= n; i++)
+            p1[i]=p1[i]*p1[i],sum+=p1[i];
+        for (i = 1; i <= n; i++)
+            p1[i]=p1[i]/sum;
+        sum=0;
+
+        rd = (double)(rand()%10000) / 10000.0;
+        for (i = 1; i <= n; i++)
+            if(sum + p1[i] > rd)
+            {
+                ch1 = i - 1;
+                break;
+            }
+            else sum += p1[i];
+    }
+    else if(CHOOSE_TYPE==3)//直接选个概率最大的。。。
+    {
+        double max_pro=0;
+        for (i = 1; i <= n; i++)
+            if(p1[i] > max_pro)
+            {
+                max_pro=p1[i];
+                ch1=i-1;
+            }
+    }
+}
+
 double Place_Turn(int dep, GameBoard& gameBoard, int pl_col, int this_bl_type, int &finalX = nouse, int &finalY = nouse, int &finalO = nouse, int &blockFE = nouse) //floc 表示最终选的块的位置,blockFE表示给敌人的块
 {
     if (dep == (gameBoard.turnID < 10 ? DEPTH_LIM_2 : DEPTH_LIM_1)) //最后一层直接贪
@@ -370,7 +419,7 @@ double Place_Turn(int dep, GameBoard& gameBoard, int pl_col, int this_bl_type, i
             #ifdef DEBUG_DECIDE
             cerr << A[i][j] << " ";
             #endif
-            A[i][j] += val * F_ROUND_WIGHT;
+            A[i][j] += val * F_ROUND_WIGHT[dep];
             A[i][j] += inh;
         }
         #ifdef DEBUG_DECIDE
@@ -432,44 +481,9 @@ double Place_Turn(int dep, GameBoard& gameBoard, int pl_col, int this_bl_type, i
     #ifdef DEBUG_DECIDE
     cerr << endl;
     #endif
-/*
-    double sp1 = 0, sp2 = 0;
-    for (int i = 1; i <= n; ++i)
-        p1[i] = p1[i] * p1[i], sp1 += p1[i];
-    for (int i = 1; i <= n; ++i)
-        p1[i] /= sp1;
-    for (int i = 1; i <= m; ++i)
-        p2[i] = p2[i] * p2[i], sp2 += p2[i];
-    for (int i = 1; i <= m; ++i)
-        p2[i] /= sp2;
-*/  
-    double max_p;
-
-    sum = 0;
-    rd = (double)(rand()%10000) / 10000.0;
-    //debug(rd);
-    for (i = 1; i <= n; i++)
-        if(sum + p1[i] > rd)
-        {
-            ch1 = i - 1;
-            break;
-        }
-        else sum += p1[i];
-    /*sum = 0;
-    max_p = 0;
-    rd = (double)(rand()%10000) / 10000.0;
-    //debug(rd);
-    for (i = 1; i <= n; i++)
-        if(p1[i] >= max_p)
-        {
-            ch1 = i - 1;
-            max_p = p1[i];
-            //break;
-        }
-        //else sum += p1[i];
-    */
+    
+    get_CH(p1,n,ch1);
     //debug(ch1);
-    //debug("get ch1");
     for (it = s.begin(), i = 0; i < ch1; i++, it++);
     int ind = (*it).idx;
     finalX = loc[ind].blockX;
@@ -477,15 +491,9 @@ double Place_Turn(int dep, GameBoard& gameBoard, int pl_col, int this_bl_type, i
     finalO = loc[ind].orientation;
     //debug(ch1);
     //debug("get loc");
-    sum = 0;
-    rd = (double)(rand()%10000) / 10000.0;
-    for (i = 1; i <= m; i++)
-        if(sum + p2[i] > rd)
-        {
-            ch2 = i - 1;
-            break;
-        }
-        else sum += p2[i];
+
+    get_CH(p2,m,ch2);
+
     /*sum = 0;
     max_p = 0;
     rd = (double)(rand()%10000) / 10000.0;
