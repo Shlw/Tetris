@@ -270,10 +270,10 @@ struct Plan
     }
 };
 
-std::function<double(Board, const Block &, double &)> Eval;
+std::function<double(Board, const Block &, double &, bool)> Eval;
 int nouse;
 double dnouse;
-void set_Eval(std::function<double(Board, const Block &, double &)> EFun)
+void set_Eval(std::function<double(Board, const Block &, double &, bool)> EFun)
 {
     Eval = EFun;
 }
@@ -293,7 +293,7 @@ double naive_place(GameBoard &gameBoard, int this_col, int this_bl_type)
     for (i = 0; i < loc.size(); i++)
     {
         now_bl = Block(loc[i]);
-        now_val = Eval(myBoard, now_bl, dnouse);
+        now_val = Eval(myBoard, now_bl, dnouse, 1);
         /*
         if(global_i == 30 && i == 29)
         {
@@ -393,7 +393,7 @@ double Place_Turn(int dep, GameBoard& gameBoard, int pl_col, int this_bl_type, i
         Board myBoard(pl_col, gameBoard);
         Block now_bl = Block(loc[i]);
         double inh;
-        double now_val = Eval(myBoard, now_bl, inh);
+        double now_val = Eval(myBoard, now_bl, inh,0);
         s.insert(Plan(now_val, inh, i));
     }
         //debug(now_val);
@@ -534,7 +534,7 @@ vector<int> Jam_Turn(int dep, GameBoard &gameBoard, int pl_col, vector<double> &
     return index;
 }
 
-
+/*
 double naive_place2(GameBoard &gameBoard, int this_col, int this_bl_type, std::function<double(Board, const Block&)> Eval, int &finalX, int &finalY, int &finalO)
 {
     std::vector<Tetris> loc;
@@ -558,7 +558,7 @@ double naive_place2(GameBoard &gameBoard, int this_col, int this_bl_type, std::f
     finalO = best_bl.o;
     return best_val;
 }
-
+*/
 //验算一下对偶的答案是否一样
     /*
     double check_rel = -1e9;
