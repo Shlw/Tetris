@@ -5,6 +5,7 @@
 #include <ctime>
 #include <set>
 #include <cmath>
+#include <vector>
 //#define DEBUG_DECIDE
 #define DEPTH_LIM_1 5
 #define DEPTH_LIM_2 5
@@ -16,9 +17,12 @@ using namespace std;
 #define M 55
 #define K 105
 const double F_ROUND_WIGHT[7]={0, 0.40, 0, 0.10, 0};
-#define CHOOSE_TYPE 4
+#define BEST_CH_WEIGHT 0.3
+#define DECREASE_RATE 0.05
+#define CHOOSE_TYPE 2
+#define USE_SIMULATE 0 //使用乱猜估价
 //1 表示一次方，2表示二次方，3表示取最大值，4表示1.5次方，代号分别为 u,s,m,h
-//当前 bot 命名为 h_40_10
+//当前 bot 命名为 u_40_10
 
 const double eps = 1e-9;
 int dcmp(double x)
@@ -290,10 +294,12 @@ double naive_place(GameBoard &gameBoard, int this_col, int this_bl_type)
     Board myBoard(this_col, gameBoard);
 
     //debug(loc.size());
+    vector<double> rel;
     for (i = 0; i < loc.size(); i++)
     {
         now_bl = Block(loc[i]);
         now_val = Eval(myBoard, now_bl, dnouse);
+        rel.push_back(now_val);
         /*
         if(global_i == 30 && i == 29)
         {
@@ -310,8 +316,22 @@ double naive_place(GameBoard &gameBoard, int this_col, int this_bl_type)
             best_ch = i;
         }
     }
+    sort(rel.begin(), rel.end());
+    reverse(rel.begin(),rel.end());
+    if(rel.size()>10 && USE_SIMULATE)
+    {
+        double sum_w = 0;
+        double now_w[7]={1,0,0,0,0};
+        for(i=0;i<5;i++)
+        {
+            sum_w += now_w[i] * rel[i];
+            //now_w = now_w - DECREASE_RATE;
+        }
+        return sum_w;
+    }
     //debug(best_ch);
-    return best_val;
+    else
+        return best_val;
 }
 
 void get_CH(double *p1, int n, int &ch1)
