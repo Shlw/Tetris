@@ -8,105 +8,66 @@
 #include <string>
 #include <cstring>
 
+#define RED_HOLE_HEIGHT 14
+#define RED_HOLE_WEIGHT 0.15
 using namespace std;
 extern int bitcount[1 << 12];
 
-/*
-double evaluate2(Board a, const Block &block, double &inh)
-{
-    a.place(block);
-    int rowelim = a.eliminate().first;
-
-    double land = block.x - rowelim - blockHalfHeight[block.t][block.o]
-                  + (blockHeight[block.t][block.o] - 1) / 2.0 - 1;
-
-    int cntdown[MAPHEIGHT + 2][MAPWIDTH + 2] = {};
-    for (int i = 1; i <= MAPHEIGHT; ++i)
-        for (int j = 1; j <= MAPWIDTH; ++j)
-            if (!a[i][j])
-                cntdown[i][j] = 1 + cntdown[i - 1][j];
-
-
-    bool visible[MAPHEIGHT+2][MAPWIDTH+2]={};
-    for (int i=1;i<=MAPWIDTH;++i) visible[MAPHEIGHT+1][i]=1;
-    for (int i=MAPHEIGHT;i>0;--i)
-        for (int j=1;j<=MAPWIDTH;++j)
-            visible[i][j]=visible[i+1][j]&&(!a[i][j]);
-
-
-    int rowtrans = 0;
-    for (int i = 1; i <= MAPHEIGHT; ++i)
-        for (int j = 1; j <= MAPWIDTH + 1; ++j)
-            if (!!a[i][j] != !!a[i][j - 1])
-                ++rowtrans;
-
-    int holenum = 0;
-    int row[MAPWIDTH + 2] = {};
-    for (int i = MAPHEIGHT - 1; i > 0; --i) {
-        for (int j = 1; j <= MAPWIDTH; ++j)
-            row[j] = (!a[i][j]) & (!!a[i + 1][j] | row[j]);
-        for (int j = 1; j <= MAPWIDTH; ++j)
-            holenum += row[j];
-    }
-
-    int coltrans = 0;
-    for (int i = 1; i <= MAPHEIGHT; ++i)
-        for (int j = 1; j <= MAPWIDTH; ++j)
-            if (!!a[i][j] != !!a[i - 1][j])
-                ++coltrans;
-
-    int wellsum = 0;
-    for (int i = 1; i <= MAPHEIGHT; ++i)
-        for (int j = 1; j <= MAPWIDTH; ++j)
-            if (!a[i][j] && a[i][j - 1] && a[i][j + 1])
-                wellsum += cntdown[i][j];
-
-    int maxheight = 0;
-    for (int i = MAPHEIGHT; i >= 1; --i) {
-        int cnt = 0;
-        for (int j = 1; j <= MAPWIDTH; ++j)
-            if (a[i][j])
-                ++cnt;
-        if (cnt) {
-            maxheight = i;
+void eval(Board& brd, const Block& block, int& ele, int& ht) {
+    int basenum = brd.place(block);
+    pair<int, int> elim=brd.eliminate(&block);
+    ele = elim.first;
+    for (int i = MAPHEIGHT; i > 0; ++i)
+        if (brd.rows[i]) {
+            ht = i;
             break;
         }
-    }
-
-    inh = - 4.500158825082766 * land
-            + 3.4181268101392694 * rowelim;
-    return  - 4.500158825082766 * land
-            + 3.4181268101392694 * rowelim
-            - 3.2178882868487753 * rowtrans
-            - 9.348695305445199 * coltrans
-            - 7.899265427351652 * holenum
-            - 3.3855972247263626 * wellsum;
 }
-*/
-double evaluate2_sweet(Board brd, const Block &block, double &inh)
+
+void precalc(GameBoard& gameBoard, int& myele, int& enemyele, int& enemyht) {
+    std::vector<Tetris> myloc;
+    gameBoard.getPlaces(gameBoard.currBotColor, gameBoard.currBlockType, myloc);
+    std::vector<Tetris> enemyloc;
+    gameBoard.getPlaces(gameBoard.enemyColor, gameBoard.enemyType, enemyloc);
+    myele = 0;
+    enemyele = 0;
+    enemyht = 20;
+    for (auto& loc : myloc) {
+        int ht, ele;
+        Board brd = Board(gameBoard.currBotColor, gameBoard);
+        eval(brd, Block(loc), ele, ht);
+        myele = std::max(myele, ele);
+    }
+    for (auto& loc : enemyloc) {
+        int ht, ele;
+        Board brd = Board(gameBoard.enemyColor, gameBoard);
+        eval(brd, Block(loc), ele, ht);
+        enemyele = std::max(enemyele, ele);
+        enemyht = std::min(enemyht, ht);
+    }
+}
+
+double evaluate2_sweet(Board brd, const Block &block, double &inh, bool last_layer)
 {
-    brd.place(block);
-    int nobase;
-    pair<int, int> elim;
-    brd.eliminate(&block, &elim, &nobase);
+    int basenum = brd.place(block);
+    pair<int, int> elim = brd.eliminate(&block);
     int *rows = brd.rows;
     int *cols = brd.cols;
 
     double sweet = 0;
-    if (nobase == 0) {
-        sweet += 10;
+    if (basenum == 4) {
+        //sweet += 10;
+        sweet += 20;
         if (elim.second == 3)
             sweet += 50;
         if (elim.second == 4)
             sweet += 100;
     }
-    //printf("%d %d %d\n", block.x, block.y, block.o);
-    //printf("%d %d %d\n",elim.first,elim.second,nobase);
 
     double land = block.x - elim.first - blockHalfHeight[block.t][block.o]
                   + (blockHeight[block.t][block.o] - 1) / 2.0 - 1;
 
-    int cntdown[MAPWIDTH + 2] = {};
+    //int cntdown[MAPWIDTH + 2] = {};
     int rowtrans = 0;
     int wellsum = 0;
     for (int i = 1; i <= MAPHEIGHT; ++i) {
@@ -133,26 +94,28 @@ double evaluate2_sweet(Board brd, const Block &block, double &inh)
         row = (~rows[i]) & (rows[i + 1] | row);
         holenum += bitcount[row & 2047] + bitcount[row >> 12];
     }
-    /*
-        int maxheight = 0;
-        for (int i = MAPHEIGHT; i >= 1; --i) {
-            int cnt = 0;
-            if (rows[i] ^ 1 ^ (1 << (MAPWIDTH + 1))) {
-                maxheight = i;
-                break;
-            }
+
+
+    int maxheight = 0;
+    for (int i = MAPHEIGHT; i >= 1; --i)
+        if (rows[i]^Board::EMPTY_ROW) {
+            maxheight = i;
+            break;
         }
-    */
+
     const double p[6] = {5.00016, 1.11813, 6.71788, 12.3487, 11.3993, 8.2856};
     inh = - p[0] * land
           + p[1] * elim.first
           + sweet;
 
+    double red_hole = 0;
+    if (last_layer == 1)
+        red_hole = max(0, RED_HOLE_HEIGHT - maxheight) * RED_HOLE_WEIGHT;
     return  - p[0] * land
             + p[1] * elim.first
             - p[2] * rowtrans
-            - p[3] * coltrans
-            - p[4] * holenum
+            - (p[3] + red_hole) * coltrans
+            - (p[4] + red_hole) * holenum
             - p[5] * wellsum
             + sweet;
     /*inh = - 4.500158825082766 * land

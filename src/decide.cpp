@@ -6,6 +6,7 @@
 #include <set>
 #include <cmath>
 #include <vector>
+//#include "evaluate.cpp"
 //#define DEBUG_DECIDE
 #define DEPTH_LIM_1 5
 #define DEPTH_LIM_2 5
@@ -23,6 +24,10 @@ const double F_ROUND_WIGHT[7]={0, 0.40, 0, 0.10, 0};
 #define USE_SIMULATE 0 //使用乱猜估价
 //1 表示一次方，2表示二次方，3表示取最大值，4表示1.5次方，代号分别为 u,s,m,h
 //当前 bot 命名为 u_40_10
+#define Risk_Value 300
+#define MustWin 1000000
+
+extern void eval(Board& brd, const Block& block, int& ele, int& ht);
 
 const double eps = 1e-9;
 int dcmp(double x)
@@ -274,10 +279,10 @@ struct Plan
     }
 };
 
-std::function<double(Board, const Block &, double &)> Eval;
+std::function<double(Board, const Block &, double &, bool)> Eval;
 int nouse;
 double dnouse;
-void set_Eval(std::function<double(Board, const Block &, double &)> EFun)
+void set_Eval(std::function<double(Board, const Block &, double &, bool)> EFun)
 {
     Eval = EFun;
 }
@@ -298,8 +303,9 @@ double naive_place(GameBoard &gameBoard, int this_col, int this_bl_type)
     for (i = 0; i < loc.size(); i++)
     {
         now_bl = Block(loc[i]);
-        now_val = Eval(myBoard, now_bl, dnouse);
+        now_val = Eval(myBoard, now_bl, dnouse, 1);
         rel.push_back(now_val);
+        //now_val = Eval(myBoard, now_bl, dnouse, 1);
         /*
         if(global_i == 30 && i == 29)
         {
@@ -387,6 +393,8 @@ void get_CH(double *p1, int n, int &ch1)
     }
 }
 
+int myele, enemyele, enemyht;
+
 double Place_Turn(int dep, GameBoard& gameBoard, int pl_col, int this_bl_type, int &finalX = nouse, int &finalY = nouse, int &finalO = nouse, int &blockFE = nouse) //floc 表示最终选的块的位置,blockFE表示给敌人的块
 {
     if (dep == (gameBoard.turnID < 10 ? DEPTH_LIM_2 : DEPTH_LIM_1)) //最后一层直接贪
@@ -410,10 +418,28 @@ double Place_Turn(int dep, GameBoard& gameBoard, int pl_col, int this_bl_type, i
         debug(loc[i].blockY);
         debug(loc[i].orientation);
         #endif
-        Board myBoard(pl_col, gameBoard);
+        Board myBoard(pl_col, gameBoard), myBoard2(pl_col, gameBoard);
         Block now_bl = Block(loc[i]);
         double inh;
-        double now_val = Eval(myBoard, now_bl, inh);
+        double now_val = Eval(myBoard, now_bl, inh,0);
+        int this_ele, this_ht;
+        eval(myBoard2, now_bl, this_ele, this_ht);
+        if(dep == 1)
+        {
+            if(pl_col == gameBoard.currBotColor) //考虑自己的局面
+            {
+                if(this_ht + enemyele > 20)
+                    now_val -= Risk_Value;
+                if(myele + enemyht > 20)
+                    now_val += MustWin;
+            }
+            else
+            {
+                if(myele + this_ht > 20)
+                    now_val -= Risk_Value;
+            }
+        }
+        
         s.insert(Plan(now_val, inh, i));
     }
         //debug(now_val);
@@ -554,7 +580,7 @@ vector<int> Jam_Turn(int dep, GameBoard &gameBoard, int pl_col, vector<double> &
     return index;
 }
 
-
+/*
 double naive_place2(GameBoard &gameBoard, int this_col, int this_bl_type, std::function<double(Board, const Block&)> Eval, int &finalX, int &finalY, int &finalO)
 {
     std::vector<Tetris> loc;
@@ -578,7 +604,7 @@ double naive_place2(GameBoard &gameBoard, int this_col, int this_bl_type, std::f
     finalO = best_bl.o;
     return best_val;
 }
-
+*/
 //验算一下对偶的答案是否一样
     /*
     double check_rel = -1e9;

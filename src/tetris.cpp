@@ -15,6 +15,7 @@ using namespace std;
 #define debug(x) cerr<<#x<<"="<<x<<endl
 
 GameBoard gameBoard;
+extern int myele, enemyele, enemyht;
 
 void init(const Json::Value &input)
 {
@@ -29,6 +30,8 @@ void decide(int &blockForEnemy, int &finalX, int &finalY, int &finalO)
 {
     set_Eval(evaluate2_sweet);
     int tmp;
+    precalc(gameBoard, myele, enemyele, enemyht);
+
     Place_Turn(1, gameBoard, gameBoard.currBotColor, gameBoard.currBlockType, finalX, finalY, finalO, tmp);
     //while(1);
     Place_Turn(1, gameBoard, gameBoard.currBotColor ^ 1, gameBoard.enemyType, tmp, tmp, tmp, blockForEnemy);
