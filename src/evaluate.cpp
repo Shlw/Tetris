@@ -8,14 +8,14 @@
 #include <string>
 #include <cstring>
 
+#define RED_HOLE_HEIGHT 14
+#define RED_HOLE_WEIGHT 0.15
 using namespace std;
 extern int bitcount[1 << 12];
 
 void eval(Board& brd, const Block& block, int& ele, int& ht) {
-    brd.place(block);
-    int nobase;
-    pair<int, int> elim;
-    brd.eliminate(&block, &elim, &nobase);
+    int basenum = brd.place(block);
+    pair<int, int> elim=brd.eliminate(&block);
     ele = elim.first;
     for (int i = MAPHEIGHT; i > 0; ++i)
         if (brd.rows[i]) {
@@ -47,29 +47,27 @@ void precalc(GameBoard& gameBoard, int& myele, int& enemyele, int& enemyht) {
     }
 }
 
-double evaluate2_sweet(Board brd, const Block& block, double& inh) {
-    brd.place(block);
-    int nobase;
-    pair<int, int> elim;
-    brd.eliminate(&block, &elim, &nobase);
-    int* rows = brd.rows;
-    int* cols = brd.cols;
+double evaluate2_sweet(Board brd, const Block &block, double &inh, bool last_layer)
+{
+    int basenum = brd.place(block);
+    pair<int, int> elim = brd.eliminate(&block);
+    int *rows = brd.rows;
+    int *cols = brd.cols;
 
     double sweet = 0;
-    if (nobase == 0) {
-        sweet += 10;
+    if (basenum == 4) {
+        //sweet += 10;
+        sweet += 20;
         if (elim.second == 3)
             sweet += 50;
         if (elim.second == 4)
             sweet += 100;
     }
-    //printf("%d %d %d\n", block.x, block.y, block.o);
-    //printf("%d %d %d\n",elim.first,elim.second,nobase);
 
     double land = block.x - elim.first - blockHalfHeight[block.t][block.o]
                   + (blockHeight[block.t][block.o] - 1) / 2.0 - 1;
 
-    int cntdown[MAPWIDTH + 2] = {};
+    //int cntdown[MAPWIDTH + 2] = {};
     int rowtrans = 0;
     int wellsum = 0;
     for (int i = 1; i <= MAPHEIGHT; ++i) {
@@ -96,26 +94,28 @@ double evaluate2_sweet(Board brd, const Block& block, double& inh) {
         row = (~rows[i]) & (rows[i + 1] | row);
         holenum += bitcount[row & 2047] + bitcount[row >> 12];
     }
-    /*
-        int maxheight = 0;
-        for (int i = MAPHEIGHT; i >= 1; --i) {
-            int cnt = 0;
-            if (rows[i] ^ 1 ^ (1 << (MAPWIDTH + 1))) {
-                maxheight = i;
-                break;
-            }
+
+
+    int maxheight = 0;
+    for (int i = MAPHEIGHT; i >= 1; --i)
+        if (rows[i]^Board::EMPTY_ROW) {
+            maxheight = i;
+            break;
         }
-    */
+
     const double p[6] = {5.00016, 1.11813, 6.71788, 12.3487, 11.3993, 8.2856};
     inh = - p[0] * land
           + p[1] * elim.first
           + sweet;
 
+    double red_hole = 0;
+    if (last_layer == 1)
+        red_hole = max(0, RED_HOLE_HEIGHT - maxheight) * RED_HOLE_WEIGHT;
     return  - p[0] * land
             + p[1] * elim.first
             - p[2] * rowtrans
-            - p[3] * coltrans
-            - p[4] * holenum
+            - (p[3] + red_hole) * coltrans
+            - (p[4] + red_hole) * holenum
             - p[5] * wellsum
             + sweet;
     /*inh = - 4.500158825082766 * land

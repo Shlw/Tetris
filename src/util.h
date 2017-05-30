@@ -26,14 +26,14 @@ class Board {
         Board();
         Board(int color, const GameBoard& gameBoard);
         void setFrame();
-        void place(const Block&);
+        int place(const Block&);
         void deplace(const Block&);
-        void eliminate(const Block* block = NULL, std::pair<int, int>* elim = NULL, int* nobase = NULL);
+        std::pair<int, int> eliminate(const Block* block = NULL); // 返回消去的行数，块数
 
 };
 
 void precalc(GameBoard& gameBoard, int& myele, int& enemyele, int& enemyht);
-double evaluate2_sweet(Board a, const Block& block, double&);
+double evaluate2_sweet(Board a, const Block& block, double&, bool last_layer = 0);
 
 extern int bitcount[1 << 12];
 
