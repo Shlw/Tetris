@@ -24,8 +24,8 @@ const double F_ROUND_WIGHT[7]={0, 0.40, 0, 0.10, 0};
 #define USE_SIMULATE 0 //使用乱猜估价
 //1 表示一次方，2表示二次方，3表示取最大值，4表示1.5次方，代号分别为 u,s,m,h
 //当前 bot 命名为 u_40_10
-#define Risk_Value 300
-#define MustWin 1000000
+#define Risk_Value 100
+#define MustWin 10000
 
 extern void eval(Board& brd, const Block& block, int& ele, int& ht);
 

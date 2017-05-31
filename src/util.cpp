@@ -47,7 +47,15 @@ int Board::place(const Block &block){
     for (i = 0; i < 4; ++i) {
         tmpX = block.x + shape[2 * i];
         tmpY = block.y + shape[2 * i + 1];
-        if ((rows[tmpX-1] & (1<<tmpY)) || rows[tmpX] == FULL_ROW)
+        bool base = rows[tmpX] == FULL_ROW;
+        if (!base)
+        {
+            int t = tmpX - 1;
+            while (t && rows[t] == FULL_ROW)
+                --t;
+            base = ((rows[t]>>tmpY)&1);
+        }
+        if (base)
             ++basenum;
     }
     return basenum;

@@ -17,8 +17,8 @@ void eval(Board& brd, const Block& block, int& ele, int& ht) {
     int basenum = brd.place(block);
     pair<int, int> elim=brd.eliminate(&block);
     ele = elim.first;
-    for (int i = MAPHEIGHT; i > 0; ++i)
-        if (brd.rows[i]) {
+    for (int i = MAPHEIGHT; i > 0; --i)
+        if (brd.rows[i]!=Board::EMPTY_ROW) {
             ht = i;
             break;
         }

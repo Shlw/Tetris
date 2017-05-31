@@ -31,6 +31,7 @@ void decide(int &blockForEnemy, int &finalX, int &finalY, int &finalO)
     set_Eval(evaluate2_sweet);
     int tmp;
     precalc(gameBoard, myele, enemyele, enemyht);
+    //printf("%d %d %d\n", myele, enemyele, enemyht);
 
     Place_Turn(1, gameBoard, gameBoard.currBotColor, gameBoard.currBlockType, finalX, finalY, finalO, tmp);
     //while(1);

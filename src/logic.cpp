@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
 {
     if (argc != 4) {
         puts("usage: logic player1 player2 output");
-        puts("this program will create lots of temperary files !!!");
+        puts("this program will create lots of temporary files !!!");
         return 1;
     }
 
